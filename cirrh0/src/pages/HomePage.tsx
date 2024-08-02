@@ -1,20 +1,75 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router';
+import { getUserDetailsFromToken } from '../services/authServices';
+import { getUserById } from '../services/userServices';
+import * as authActions from "../redux/actions"
+import APIResponseStatus from '../components/APIResponseStatus';
+import Loader from '../assets/Loader';
+
+
 
   
 
 function HomePage() {
+  const [rerender, setRerender] = useState(false);
+  const [networkError,setNetworkError] = useState<Boolean>(false)
+  const [pageLoading, setPageLoading] = useState<any>("not-loaded")
 
+
+  const myProfiledata = useSelector(
+    (state: any) => state.authReducer.myUserProfile
+  );
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const existingUser:any = getUserDetailsFromToken()
+    // console.log("EXISITING USER ID : ",existingUser)
+
+    if (existingUser?._id) {
+      getMyProfileData(existingUser._id)
+    }
+    else{
+      navigate("/") 
+      setPageLoading("loaded")
+    }
+
+  }, [rerender]);
+
+  const getMyProfileData =async(myUserId:any)=>{
+    await getUserById(myUserId).then((res:any)=>{
+      // console.log("in TASKPAGE RETURNED TASK ",res.code);
+      if(res.code==="ERR_NETWORK"){
+        setNetworkError(true)
+        console.error("NETWORK ERROR ")
+        setPageLoading("error")
+      }
+      else{
+        setPageLoading("loaded")
+        dispatch(authActions.loginAction(res))
+      }
+    }).catch((err:any)=>{
+      console.error(err)
+    })
+}
+
+  
   useEffect(()=>{
     window.scrollTo(0,0)
   },[])
 
+  // console.log("MYPROFILE : ",myProfiledata);
+
   return (
-    <div className='flex flex-col justify-between h-screen'>
-        <Navbar/>
+    <>
+    {pageLoading==="loaded" ?
+        <div className='flex flex-col justify-between h-screen'>
+        <Navbar activePage="home"/>
         <div className='flex flex-col flex-1 pt-[70px] '>
 
           {/* Home Page Hero */}
@@ -82,7 +137,19 @@ function HomePage() {
          
         </div>
         <Footer/>
+    </div>:
+    pageLoading==="not-loaded"?
+    <div className="w-[100vw] h-[100vh] flex justify-center items-center">
+    <div className="flex justify-center text-[16px] font-light flex-col ">
+        <Loader/>
     </div>
+    </div>:
+      <div className="flex items-center justify-center flex-1 w-full h-[100vh]">
+      <APIResponseStatus status={false} message={`${networkError?"Network Error":"An Error Occured"}`}/>
+      </div>    
+}
+    </>
+
   )
 }
 

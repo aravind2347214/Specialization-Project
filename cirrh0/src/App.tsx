@@ -12,6 +12,8 @@ import AboutPage from './pages/AboutPage';
 import MRIAnalysisPage from './pages/MRIAnalysisPage';
 import ReportAnalysisPage from './pages/ReportAnalysisPage';
 import ProfilePage from './pages/ProfilePage';
+import MRIResultPage from './pages/MRIResultPage';
+import ReportResultPage from './pages/ReportResultPage';
 
 function App() {
   useEffect(()=>{
@@ -28,10 +30,9 @@ function App() {
           <Route path="/mri-analysis" element={<MRIAnalysisPage/>}/>
           <Route path="/report-analysis" element={<ReportAnalysisPage/>}/>
           <Route path="/profile" element={<ProfilePage/>}/>
-
-          
-
-
+          <Route path="/mri-result" element={<MRIResultPage/>}/>
+          <Route path="/report-result" element={<ReportResultPage/>}/>
+          <Route path="*" element={<ErrorPage/>}/>
           <Route path ="*" element={<ErrorPage/>}/>
         </Routes>
       </BrowserRouter>

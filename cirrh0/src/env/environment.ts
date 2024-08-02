@@ -1,0 +1,6 @@
+export const ENV = "http://localhost:8000"
+export const secretKey = "sdfghjklkjhgfdsdfghjklkjgfrtyuiolnbfr567ujbvcder6yujbvcdertyuikjnbvxdfgh"
+export const CLOUDINARY_CLOUDNAME="dybxhvoll"
+export const CLOUDINARY_APIKEY="729477513395239"
+export const CLOUDINARY_API_SECRET="hzgPI3q5ospWWBJgvrYrUVJVzhs"
+export const CLOUDINARY_ENV_VAR="CLOUDINARY_URL=cloudinary://729477513395239:hzgPI3q5ospWWBJgvrYrUVJVzhs@dybxhvoll"
