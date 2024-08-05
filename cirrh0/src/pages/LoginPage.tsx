@@ -57,7 +57,17 @@ function LoginPage() {
        setLoginFormData({
       ...loginFormData,
       [e.target.name]: e.target.value,
+
+
     });
+
+    console.log("LOGINNDATA",loginFormData)
+  };
+
+  const handleKeyPress = (e: any) => {
+    if (e.key === "Enter") {
+      handleSubmit();
+    }
   };
 
   const validateBeforeSubmit = () => {
@@ -66,14 +76,15 @@ function LoginPage() {
       setError("Username cannot be empty");
       return false;
     } else if (!loginFormData.password.trim()) {
-      setError("Password cannot be empty");
+      console.log("password is empty")
+      setError("Password cannot be empty"); 
       return false;
     }
     return true;
   };
 
+
   const handleSubmit = async() => {
-    // Add your validation logic here
     if (validateBeforeSubmit()) {
       setLoginStatus("login-loading")
       // Perform registration logic here call API
@@ -111,6 +122,8 @@ function LoginPage() {
 
 
 
+
+
   return (
     <div className='flex justify-center'>
       <div className='flex flex-col mx-auto  min-w-[400px] mt-[150px] gap-3 p-2'>
@@ -129,6 +142,8 @@ function LoginPage() {
      id="username"
      value={loginFormData.username}
      onChange={handleInputChange}
+     onKeyPress={handleKeyPress}
+
             data-aos="fade-up" 
             data-aos-duration="750" 
     type="text" className='px-3 py-2 bg-gray-100 border border-gray-300 outline-none focus:border-C11' placeholder='Username' />
@@ -141,6 +156,8 @@ function LoginPage() {
      id="password"
      value={loginFormData.password}
      onChange={handleInputChange}
+     onKeyPress={handleKeyPress}
+
     type={`${showPassword?"text":"password"}`} className='  flex-1 px-3 py-2 bg-gray-100 outline-none rounded-[2px] ' placeholder='Password' />
     <button onClick={()=>setShowPassword(!showPassword)} className='flex items-center hover:bg-gray-200 p-[6px] rounded-full' >
     {

@@ -159,7 +159,7 @@ function SignupPage() {
               id="fullName"
               value={registerFormData.fullName}
               onChange={handleInputChange}
-              className="flex-1 w-[80%] px-3 py-2 bg-gray-100 outline-C11"
+              className="flex-1 w-[80%] px-3 py-2 border border-gray-300 outline-none focus:border-C11 bg-gray-100"
               placeholder="Full Name"
             />
             <input
@@ -168,7 +168,7 @@ function SignupPage() {
               value={registerFormData.age}
               onChange={handleInputChange}
               type="number"
-              className="px-3 w-[100px] py-2 bg-gray-100 outline-C11"
+              className="px-3 w-[100px] py-2 border border-gray-300 outline-none focus:border-C11 bg-gray-100"
               placeholder="Age"
             />
           </div>
@@ -183,17 +183,16 @@ function SignupPage() {
               value={registerFormData.email}
               onChange={handleInputChange}
               type="text"
-              className="flex-1 px-3 py-2 bg-gray-100 outline-C11"
-              placeholder="Email"
+              className='flex-1 px-3 py-2 bg-gray-100 border border-gray-300 outline-none focus:border-C11'              placeholder="Email"
             />
             <select
-              className="px-3 py-2 bg-gray-100 outline-C11"
+              className="px-3 py-2 bg-gray-100 border border-gray-300 outline-none focus:border-C11"
               value={registerFormData.gender}
               onChange={handleInputChange}
               name="gender"
               id="gender"
             >
-              <option value="">Select Gender</option>
+              <option value="" selected>Select Gender</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
               <option value="other">Other</option>
@@ -202,22 +201,22 @@ function SignupPage() {
           <input
             name="username"
             id="username"
+            autoComplete="off"
             value={registerFormData.username}
             onChange={handleInputChange}
             data-aos="fade-up"
             data-aos-duration="650"
             type="text"
-            className="px-3 py-2 bg-gray-100 outline-C11"
-            placeholder="Username"
+            className='px-3 py-2 bg-gray-100 border border-gray-300 outline-none focus:border-C11'            placeholder="Username"
           />
           <div
             data-aos="fade-up"
             data-aos-duration="700"
-            className=" pr-1 items-center flex flex-row w-full bg-gray-100 border-transparent border-[2px] focus-within:border-C11 rounded-[2px]"
-          >
+            className='border-gray-300 border pr-1 items-center flex flex-row w-full bg-gray-100   focus-within:border-C11 rounded-[2px]'          >
             <input
               name="password"
               id="password"
+              autoComplete="off"
               value={registerFormData.password}
               onChange={handleInputChange}
               type={`${showPassword ? "text" : "password"}`}
@@ -240,10 +239,11 @@ function SignupPage() {
             data-aos-duration="750"
             name="cpassword"
             id="cpassword"
+            autoComplete="off"
             value={registerFormData.cpassword}
             onChange={handleInputChange}
             type="password"
-            className="flex-1 px-3 py-2 bg-gray-100 outline-C11 rounded-[2px] "
+            className='px-3 py-2 bg-gray-100 border border-gray-300 outline-none focus:border-C11'
             placeholder="Confirm Password"
           />
 

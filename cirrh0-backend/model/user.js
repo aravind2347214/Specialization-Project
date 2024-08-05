@@ -32,7 +32,9 @@ const userSchema = new mongoose.Schema({
     },
     loginStatus:{
         type:Boolean
-    }
+    },
+    reportAnalysisSet:[{type:mongoose.Schema.Types.ObjectId,ref: 'ReportAnalysis'}],
+    mriAnalysisSet:[{type:mongoose.Schema.Types.ObjectId,ref: 'MRIAnalysis'}],
 });
 // Add any additional user-related fields here
 

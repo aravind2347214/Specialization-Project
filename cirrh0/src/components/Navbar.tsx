@@ -68,9 +68,11 @@ function Navbar(props:any) {
                   </Link>
                   {
                     (activePage==="home"||activePage==="profile"||activePage==="about")&&
-                  <div  className='px-2 py-1 hover:bg-[#a9030628] rounded-[2px] flex flex-row gap-2 items-center cursor-pointer'>
+                  <div
+                  onClick={()=>setLogoutModal(true)}
+                    className='px-2 py-1 hover:bg-[#a9030628] rounded-[2px] flex flex-row gap-2 items-center cursor-pointer'>
                     <Logout sx={{fontSize:"16px"}}/>
-                    <div onClick={()=>setLogoutModal(true)} className=''>Logout</div>
+                    <div  className=''>Logout</div>
                   </div>
                   }
 
