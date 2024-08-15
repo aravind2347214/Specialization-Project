@@ -206,3 +206,13 @@ code {
 .select-items div:hover, .same-as-selected {
   background-color: rgba(0, 0, 0, 0.1);
 }
+
+td,th{
+  /* border:1px solid #a90306ce; */
+  border:1px solid gray;
+  padding:8px
+}
+
+td:hover,th:hover{
+  background-color: #a9030628;
+}

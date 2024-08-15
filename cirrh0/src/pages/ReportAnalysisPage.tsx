@@ -13,6 +13,8 @@ import APIResponseStatus from "../components/APIResponseStatus";
 import { reverse } from "dns";
 import { CLOUDINARY_CLOUDNAME } from "../env/environment";
 import axios from "axios";
+import { getExtractedParameters } from "../services/reportAnalysisServices";
+import ReportResultModal from "../modals/ReportResultModal";
 
 
 function ReportAnalysisPage() {
@@ -26,6 +28,7 @@ function ReportAnalysisPage() {
   const [pageLoading, setPageLoading] = useState<any>("not-loaded")
   const [loading, setLoading] = useState<Boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [resultStatus,setResultStatus] = useState<String>("result-loaded")
 
 
 
@@ -96,12 +99,7 @@ function ReportAnalysisPage() {
           data
         );
   
-        return {
-          mediaType: file.type,
-          mediaURL: response.data.secure_url,
-          mediaName: file.name,
-          mediaSize: file.size,
-        };
+        return response.data.secure_url;
       });
   
       // Wait for all uploads to complete before returning
@@ -115,23 +113,77 @@ function ReportAnalysisPage() {
     }
 }
 
-const handleExtractParameters = ()=>{
+const handleExtractParameters = async()=>{
   window.scrollTo(300,300)
+  if(fileList.length===0){
+    setError("Add atleast one media")
+  }
+  else{
+    setLoading(true);
+    try {
+      await uploadToCloudinary().then(async(res:any)=>{
+        console.log("MEDIA UPLOAD RESULT : ",res)
+        setLoading(false);
+        await getExtractedParameters(myProfiledata?._id,res).then((res:any)=>{
+          console.log("(INREACT) UPLOAD MEDIA RESULT: ", res);
+
+          if(res.addSuccess){
+           
+            setFileList([]);
+            // setAddMediaModal(false);
+            // triggerRerender();
+          }
+          else{
+            setLoading(false);
+            setError("Something went wrong");
+          }
+  
+        }).catch((err:any)=>{
+          console.log("(INREACT) UPLOAD MEDIA ERROR: ", err);
+  
+        })
+      }).catch((err:any)=>{
+        console.log("MEDIA UPLOAD ERROR INCLOUDINARY : ",err)
+      })
+
+    } catch (err:any) {
+      setLoading(false);
+      setError(err?.message || "Something went wrong");
+    }
+  }
+   
 
 
 }
 
+useEffect(() => {
+  if(loading){
+    document.body.style.overflow = "hidden";
+  }
+  else{
+      document.body.style.overflow = "scroll"
+  };
+}, [loading]);
+
 
   
-
 
   return (
     <>{
       pageLoading==="loaded"?
       <div className="flex flex-col justify-between h-screen">
+         {
+            loading?
+            <div className="absolute min-w-[100vw] top-0 left-0  z-[100] min-h-[100vh] bg-[#0000005f] justify-center flex items-center">
+              <Loader/>
+            </div>:
+            null
+          }
       <Navbar activePage="report-analysis" />
       <div className="flex flex-col flex-1 pt-[70px] ">
-        <div className="flex flex-col justify-center text-center mt-[50px] lg:w-[80%] mx-auto">
+        <div className="flex flex-col justify-center text-center mt-[50px] lg:w-[80%] mx-auto relative">
+
+
           <div
             data-aos="fade-up"
             data-aos-duration="800"

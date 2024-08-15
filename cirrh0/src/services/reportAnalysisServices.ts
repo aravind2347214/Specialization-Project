@@ -3,7 +3,7 @@ import { ENV } from "../env/environment"
 
 export const getExtractedParameters= async(userId:String,fileURLSet:Array<String>)=>{
     let extractedParameterResult
-    axios.post(`${ENV}/get-extracted-parameters`,fileURLSet).then((res:any)=>{
+    axios.post(`${ENV}/add-files-to-report/${userId}`,fileURLSet).then((res:any)=>{
         extractedParameterResult=res.data
     }).catch((err:Error)=>{
         extractedParameterResult=err
@@ -12,9 +12,9 @@ export const getExtractedParameters= async(userId:String,fileURLSet:Array<String
     return extractedParameterResult
 }
 
-export const  analyseReport =(reportAnalysisId:String,userId:String)=>{
+export const  analyseReportById =(reportAnalysisId:String,validatedReportData:Object)=>{
     let analysisResult
-    axios.post(`${ENV}/analyse-report`,{reportAnalysisId,userId}).then((res:any)=>{
+    axios.post(`${ENV}/analyze_report/${reportAnalysisId}`,validatedReportData).then((res:any)=>{
             analysisResult=res.data
             }).catch((err:Error)=>{
                 analysisResult=err
@@ -23,7 +23,7 @@ export const  analyseReport =(reportAnalysisId:String,userId:String)=>{
         return analysisResult
 }
 
-export const getReportResultByid = (reportAnalysisId:String)=>{
+export const getReportResultById = (reportAnalysisId:String)=>{
     let reportResult
     axios.get(`${ENV}/get-mri-report/${reportAnalysisId}`).then((res:any)=>{
         reportResult=res.data
@@ -32,4 +32,15 @@ export const getReportResultByid = (reportAnalysisId:String)=>{
         console.log("Error",err)
     })
     return reportResult
+}
+
+export const deleteReportById = (reportAnalysisId:String)=>{
+    let deleteReportResult
+    axios.delete(`${ENV}/delete-report/${reportAnalysisId}`).then((res:any)=>{
+        deleteReportResult=res.data
+        }).catch((err:Error)=>{
+            deleteReportResult=err
+        })
+
+        return deleteReportResult
 }
