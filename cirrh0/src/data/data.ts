@@ -57,3 +57,21 @@ export const dummyMRIresult={
     doctor_type:["Doctor 1","Doctor 2","Doctor 1","Doctor 2","Doctor 1","Doctor 2"],
 
 }
+
+export var dummyExtractedData = {
+    age:null,
+    sex:null,
+    ascites:"N",
+    hepatomegaly:"Y",
+    spider:"Y",
+    edema:"N",
+    albumin:3.5,
+    alk_phos:1098,
+    platelets:200,
+    copper:50,
+    bilirubin:3,
+    prothrombin:11.23,
+    cholesterol:245,
+    tryglycerides:77,
+    sgot:53,
+}

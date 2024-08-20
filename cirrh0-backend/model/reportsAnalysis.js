@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 const reportAnalysisSchema = new mongoose.Schema({
 
     userId: { type: mongoose.Schema.Types.ObjectId,ref: 'User',},
+    age:{type:Number},
+    sex:{type:String},
     files: [{type: String}],
     analysis:{ type: String },
     stage:{type:Number},
@@ -12,6 +14,7 @@ const reportAnalysisSchema = new mongoose.Schema({
     bilirubin:{type:Number},
     albumin:{type:Number},
     prothrombinTime:{type:Number},
+    cholesterol:{type:Number},
     date:{type:Date},
     copper:{type:Number},
     alk_phos:{type:Number},
@@ -19,7 +22,6 @@ const reportAnalysisSchema = new mongoose.Schema({
     precautions:[{type:String}],
     self_treatment_plan:[{type:String}],
     doctor_type:[{type:String}]
-
 });
 
 const ReportAnalysis = mongoose.model("ReportAnalysis", reportAnalysisSchema);

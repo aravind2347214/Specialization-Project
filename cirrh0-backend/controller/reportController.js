@@ -18,6 +18,10 @@ exports.report_add_files = async (req, res) => {
         hepatomegaly:null,
         bilirubin:null,
         albumin:null,
+        sgot:null,
+        age:null,
+        sex:null,
+        tryglycerides:null,
         prothrombinTime:null,
         date: new Date().now(),
         copper:null,
@@ -70,13 +74,20 @@ exports.report_add_files = async (req, res) => {
           $set: {
             ascites: validatedData.ascites,
             edema: validatedData.edema,
-            spiders: validatedData.spiders,
+            spider: validatedData.spiders,
             hepatomegaly: validatedData.hepatomegaly,
             bilirubin: validatedData.bilirubin,
             albumin: validatedData.albumin,
-            prothrombinTime: validatedData.prothrombinTime,
+            prothrombin: validatedData.prothrombin,
             copper: validatedData.copper,
             alk_phos: validatedData.alk_phos,
+            platelets:validatedData.platelets,
+            sex:validatedData.sex,
+            age:validatedData.age,
+            tryglycerides:validatedData.tryglycerides,
+            sgot:validatedData.sgot,
+            cholesterol:validatedData.cholesterol
+
           },
         },
         { new: true } // Return the updated document
@@ -87,7 +98,7 @@ exports.report_add_files = async (req, res) => {
       }
   
       // Sending the validated data to the Python server for modeling
-      const pythonResponse = await axios.post("pythonURL", validatedData);
+      const pythonResponse = await axios.post("http://127.0.0.1:8080/predict", validatedData);
   
       // Python gives the stage value and other details
       updatedReport = await ReportAnalysis.findByIdAndUpdate(
