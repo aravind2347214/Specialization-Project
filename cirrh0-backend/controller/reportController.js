@@ -1,3 +1,4 @@
+const { NLP_BASE_URL, REPORT_BASE_URL } = require("../env/dotenv");
 const ReportAnalysis = require("../model/reportsAnalysis");
 const User = require("../model/user");
 const axios = require('axios')
@@ -45,7 +46,7 @@ exports.report_add_files = async (req, res) => {
       );
       
       // sending the file urlset and the user id and project id to python Server 
-      axios.push("pythonURL",fileURLSet).then((res)=>{
+      axios.push(NLP_BASE_URL,fileURLSet).then((res)=>{
         // this should give the extracted parameters and we return this back to the frontend, with the validated parameters
         const extractedData = res.data
         return res.json({extractSuccess:true,extractedData:extractedData})
@@ -98,7 +99,8 @@ exports.report_add_files = async (req, res) => {
       }
   
       // Sending the validated data to the Python server for modeling
-      const pythonResponse = await axios.post("http://127.0.0.1:8080/predict", validatedData);
+      const pythonResponse = await axios.post(REPORT_BASE_URL, validatedData);
+      pythonResponse = await JSON.parse()
   
       // Python gives the stage value and other details
       updatedReport = await ReportAnalysis.findByIdAndUpdate(
