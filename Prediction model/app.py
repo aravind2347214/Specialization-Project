@@ -4,6 +4,11 @@ import json
 import requests
 import google.generativeai as genai
 import os
+import re
+from io import BytesIO
+import pdfplumber
+from datetime import datetime
+from inference_sdk import InferenceHTTPClient
 
 genai.configure(api_key="AIzaSyCe25AwGH0c1-8jIlYK_SCy7wGjVfWy--o")
 
@@ -98,6 +103,209 @@ def predict():
         # # gemini_payload['analysis'] = gemini_response.content 
         # print(gemini_response.text)
         return (gemini_response.text)
+
+@app.route("/extract", methods=["POST"])
+def extract_data():
+    if request.method == "POST":
+        pdf_urls = request.json.get('pdf_urls', [])
+        if not pdf_urls:
+            return jsonify({"error": "No PDF URLs provided"}), 400
+        
+        # Process the list of PDF files and return the results
+        extracted_data = process_multiple_pdfs(pdf_urls)
+        return jsonify(extracted_data)
+
+def download_pdf_from_url(url):
+    """
+    Downloads a PDF from a URL.
+    
+    Parameters:
+    url (str): URL of the PDF file.
+    
+    Returns:
+    BytesIO: In-memory binary stream of the PDF file.
+    """
+    try:
+        response = requests.get(url, verify=False)  # Temporarily disable SSL verification
+        response.raise_for_status()  # Check if the request was successful
+        return BytesIO(response.content)
+    except requests.RequestException as e:
+        print(f"An error occurred while downloading the PDF from {url}: {e}")
+        return None
+
+def extract_text_from_pdf(pdf_stream):
+    """
+    Extracts text from a PDF file.
+    
+    Parameters:
+    pdf_stream (BytesIO): In-memory binary stream of the PDF file.
+    
+    Returns:
+    str: Extracted text from the PDF.
+    """
+    text = ""
+    try:
+        with pdfplumber.open(pdf_stream) as pdf:
+            for page in pdf.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    text += page_text
+    except Exception as e:
+        print(f"An error occurred while extracting text: {e}")
+    return text
+
+def extract_details(text):
+    """
+    Extracts specific details from the text using regex.
+    
+    Parameters:
+    text (str): Text extracted from the PDF.
+    
+    Returns:
+    dict: Dictionary with extracted details.
+    """
+    details = {
+        "bilirubin": None,
+        "albumin": None,
+        "triglycerides": None,
+        "prothrombin": None,
+        "copper": None,
+        "platelets": None,
+        "sgot": None,
+        "alk_phos": None,
+        "cholesterol": None,
+        "reported_date": None
+    }
+    
+    patterns = {
+        "bilirubin": r"Bilirubin\s*(?:Total|Direct|Indirect)?\s*([\d\.]+)\s*(?:mg/dL)?",
+        "albumin": r"Albumin\s*([\d\.]+)\s*(?:g/dL)?",
+        "triglycerides": r"Triglycerides\s*([\d\.]+)\s*(?:mg/dL)?",
+        "prothrombin": r"Prothrombin\s*([\d\.]+)\s*(?:mg/dL)?",
+        "copper": r"Copper\s*([\d\.]+)\s*(?:mg/dL)?",
+        "platelets": r"Platelet Count\s*([\d\.]+)\s*(?:\d+/L)?",
+        "sgot": r"AST\s*\(SGOT\)\s*([\d\.<]+)\s*(?:U/L)?",
+        "alk_phos": r"Alkaline\s*Phosphatase\s*\(ALP\)\s*([\d\.<]+)\s*(?:U/L)?",
+        "cholesterol": r"Cholesterol,\s*Total\s*([\d\.]+)\s*(?:mg/dL)?",
+        # "cholesterol": r"Cholesterol,\s*Total\s*([\d\.]+)\s*<\d+\.\d+mg/dL"
+        "reported_date": r"(?i)(?:Reported\s*:|REPORTED\s*:|DATE\s*:|DATE\s*OF\s*REPORT\s*:|Date\s*of\s*Report\s*:)\s*(\d{1,2}[/-][A-Za-z]{3}[/-]\d{2,4}|\d{1,2}[/-]\d{1,2}[/-]\d{2,4})\s*(\d{1,2}:\d{2}:\d{2}\s*(?:AM|PM)?)?"
+    }
+    
+    for key, pattern in patterns.items():
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            details[key] = match.group(1)
+        else:
+            details[key] = None  # Explicitly set to None if not found
+
+    return details
+
+def process_pdf_file(pdf_url):
+    """
+    Processes a PDF file from a URL and returns the extracted details.
+    
+    Parameters:
+    pdf_url (str): URL of the PDF file.
+    
+    Returns:
+    dict: Extracted details from the PDF.
+    """
+    # Download the PDF from the URL
+    pdf_stream = download_pdf_from_url(pdf_url)
+
+    if pdf_stream:
+        # Extract text from the PDF
+        text = extract_text_from_pdf(pdf_stream)
+
+        # Extract specific details
+        details = extract_details(text)
+        details["Source URL"] = pdf_url  # Add URL to details for reference
+        return details
+    else:
+        print(f"Failed to download the PDF from {pdf_url}.")
+        return {"Source URL": pdf_url, "Error": "Failed to download"}
+
+def process_multiple_pdfs(pdf_urls):
+    """
+    Processes multiple PDF files and returns the extracted details.
+    
+    Parameters:
+    pdf_urls (list): List of URLs of PDF files.
+    
+    Returns:
+    list: List of dictionaries containing extracted details from each PDF.
+    """
+    all_details = []
+    
+    for pdf_url in pdf_urls:
+        details = process_pdf_file(pdf_url)
+        all_details.append(details)
+    
+    return consolidate_reports(all_details)
+    
+
+def parse_date(date_str):
+    try:
+        return datetime.strptime(date_str, "%d/%m/%Y")  # Handle date format like "27/12/2023"
+    except ValueError:
+        try:
+            return datetime.strptime(date_str, "%d-%b-%Y")  # Handle date format like "12-Aug-2011"
+        except ValueError:
+            return None
+def consolidate_reports(reports):
+    # Initialize the consolidated report with None for all fields
+    consolidated_report = {
+        "bilirubin": None,
+        "albumin": None,
+        "triglycerides": None,
+        "prothrombin": None,
+        "copper": None,
+        "platelets": None,
+        "sgot": None,
+        "alk_phos": None,
+        "cholesterol": None,
+        "reported_date": None
+    }
+
+    latest_date = None
+    latest_report = None
+
+    # First pass to find the latest date and update the consolidated report
+    for report in reports:
+        reported_date = parse_date(report.get("reported_date", ""))
+        
+        if reported_date:
+            if latest_date is None or reported_date > latest_date:
+                latest_date = reported_date
+                latest_report = report
+
+        # Update consolidated report with values from the current report if they are not None
+        for key in consolidated_report.keys():
+            if report.get(key) is not None:
+                # Only update if the field is currently None or the report has the latest date
+                if consolidated_report[key] is None or (latest_report and report.get("reported_date") == latest_report.get("reported_date")):
+                    consolidated_report[key] = report[key]
+
+    # If there's a latest report, use its values to resolve conflicts
+    if latest_report:
+        for key in consolidated_report.keys():
+            if consolidated_report[key] is None and latest_report.get(key) is not None:
+                consolidated_report[key] = latest_report[key]
+        
+        consolidated_report["reported_date"] = latest_report["reported_date"]
+
+    return consolidated_report
+
+@app.route("/image", methods=["GET"])
+def image():
+    CLIENT = InferenceHTTPClient(
+    api_url="https://detect.roboflow.com",
+    api_key="ZEsPr7BjoeSKOgNY0L6U"
+    )
+    image_url = "cirr1.jpg"
+    result = CLIENT.infer(image_url, model_id="my_liver_dieases/4")
+    print(result)
+    return (jsonify(result))
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=3005)
