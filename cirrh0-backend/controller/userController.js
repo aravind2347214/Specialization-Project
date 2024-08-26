@@ -12,7 +12,7 @@ exports.get_user_by_id = async(req,res)=>{
           return res.status(400).json({ error: "Invalid userId format" });
         }
     
-        const user = await User.findById(userId)
+        const user = await User.findById(userId).populate('reportAnalysisSet')
     
         if (!user) {
           return res.status(404).json({ error: "User not found" });

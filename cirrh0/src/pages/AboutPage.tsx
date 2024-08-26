@@ -59,11 +59,12 @@ function AboutPage() {
       <div 
              data-aos="fade-up" 
              data-aos-duration="700" 
-            className='text-[50px] text-C11 font-bold league-spartan'>Title Text</div>
+            className='text-[50px] text-C11 font-bold league-spartan'>Our Team</div>
             <div 
              data-aos="fade-up" 
              data-aos-duration="600" 
-            className='text-[16px]'>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Voluptas temporibus perspiciatis quisquam autem similique ipsum, modi minus qui officiis asperiores ut quos sint, beatae culpa nostrum ratione reprehenderit quibusdam a!</div>
+            className='text-[20px]'>
+            Welcome to Cirrh0, a college project dedicated to advancing liver cirrhosis prediction. Created by Aravind Nandakumar, Joe Payyappilly, and Mohit P, MCA 2nd-year students from CHRIST (Deemed to be University), our platform aims to provide precise insights for early detection and management of liver cirrhosis.              </div>
             <div 
              data-aos="fade-up" 
              data-aos-duration="500" 

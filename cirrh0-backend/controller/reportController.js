@@ -1,104 +1,105 @@
+const { NLP_BASE_URL, REPORT_BASE_URL } = require("../env/dotenv");
 const ReportAnalysis = require("../model/reportsAnalysis");
 const User = require("../model/user");
 const axios = require('axios')
 
 exports.report_add_files = async (req, res) => {
-    try {
-      const userId = req.params.userId
-      const fileURLSet = req.body.fileURLSet
-      // create a new mriAnalysis instance
-      const newReportAnalysis = new ReportAnalysis({
-        userId: userId,
-        files: fileURLSet,
-        analysis: null,
-        stage:null,
-        ascites:null,
-        edema:null,
-        spiders:null,
-        hepatomegaly:null,
-        bilirubin:null,
-        albumin:null,
-        sgot:null,
-        age:null,
-        sex:null,
-        tryglycerides:null,
-        prothrombinTime:null,
-        date: new Date().now(),
-        copper:null,
-        alk_phos:null,
-        lifestyle_recommendations:[],
-        precautions:[],
-        self_treatment_plan:[],
-        doctor_type:[]
+  try {
+    const userId = req.params.userId;
+    const fileURLSet = req.body.fileURLSet;
+    console.log("UserID:", userId, "FileURLSet:", fileURLSet);
+
+    // Create a new ReportAnalysis instance
+    const newReportAnalysis = new ReportAnalysis({
+      userId: userId,
+      files: fileURLSet,
+      analysis: null,
+      stage: null,
+      ascites: null,
+      edema: null,
+      spiders: null,
+      hepatomegaly: null,
+      bilirubin: null,
+      albumin: null,
+      sgot: null,
+      age: null,
+      sex: null,
+      tryglycerides: null,
+      cholesterol:null,
+      prothrombinTime: null,
+      date: `${new Date()}`,
+      copper: null,
+      alk_phos: null,
+      lifestyle_recommendations: [],
+      precautions: [],
+      self_treatment_plan: [],
+      doctor_type: []
     });
 
-      const user = await User.findById(userId)
-      if (!user) {
-        return res.status(404).json({ message: 'User not found',addSuccess:false });
-      }
-      
-      
-      await User.findByIdAndUpdate(
-        userId,
-        { $push: { reportAnalysisSet: newReportAnalysis._id } },
-        { new: true }
-      );
-      
-      // sending the file urlset and the user id and project id to python Server 
-      axios.push("pythonURL",fileURLSet).then((res)=>{
-        // this should give the extracted parameters and we return this back to the frontend, with the validated parameters
-        const extractedData = res.data
-        return res.json({extractSuccess:true,extractedData:extractedData})
-
-      }).catch((err)=>{
-        console.log("Extract Failure : ",err)
-        return res.status(500).json({extractSuccess:false,extractedData:err})
-      })
-
-      res.status(200).json({ message: 'Files added and etracted details' });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
+    // Check if user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found', addSuccess: false });
     }
-  };
 
+    await newReportAnalysis.save()
+
+    // Update user's reportAnalysisSet
+    await User.findByIdAndUpdate(
+      userId,
+      { $push: { reportAnalysisSet: newReportAnalysis._id } },
+      { new: true }
+    );
+
+    // Sending the file URL set and the user ID to the Python server
+    const pythonResponse = await axios.post(NLP_BASE_URL, { pdf_urls: fileURLSet });
+    
+    // This should give the extracted parameters, which we return back to the frontend
+    const extractedData = pythonResponse.data;
+    console.log("Extracted Data:", extractedData);
+    res.json({ extractSuccess: true, extractedData: extractedData, reportId: newReportAnalysis._id });
+
+  } catch (error) {
+    console.error("Extract Failure:", error);
+    res.status(500).json({ extractSuccess: false, error: error.message });
+  }
+};
+
+
+  
   exports.analyze_report = async (req, res) => {
     try {
-      const reportId = req.params.reportId;
+      console.log("ANALYSE REPORT BACKEND : ",req)
+      const reportId = req.body.reportId;
       const validatedData = req.body.validatedData;
   
-      // Update each field individually
-      let updatedReport = await ReportAnalysis.findByIdAndUpdate(
-        reportId,
-        {
-          $set: {
-            ascites: validatedData.ascites,
-            edema: validatedData.edema,
-            spider: validatedData.spiders,
-            hepatomegaly: validatedData.hepatomegaly,
-            bilirubin: validatedData.bilirubin,
-            albumin: validatedData.albumin,
-            prothrombin: validatedData.prothrombin,
-            copper: validatedData.copper,
-            alk_phos: validatedData.alk_phos,
-            platelets:validatedData.platelets,
-            sex:validatedData.sex,
-            age:validatedData.age,
-            tryglycerides:validatedData.tryglycerides,
-            sgot:validatedData.sgot,
-            cholesterol:validatedData.cholesterol
-
-          },
-        },
-        { new: true } // Return the updated document
-      );
+      // Update each field individually in the first phase
+      var updatedReport = await ReportAnalysis.findById(reportId)
+            updatedReport.ascites=validatedData.ascites
+            updatedReport.edema=validatedData.edema
+            updatedReport.spiders=validatedData.spiders
+            updatedReport.hepatomegaly=validatedData.hepatomegaly
+            updatedReport.bilirubin=validatedData.bilirubin
+            updatedReport.albumin=validatedData.albumin
+            updatedReport.prothrombin=validatedData.prothrombin
+            updatedReport.copper=validatedData.copper
+            updatedReport.alk_phos=validatedData.alk_phos
+            updatedReport.platelets=validatedData.platelets
+            updatedReport.sex=validatedData.sex
+            updatedReport.age=validatedData.age
+            updatedReport.edema=validatedData.edema
+            updatedReport.tryglycerides=validatedData.tryglycerides
+            updatedReport.sgot=validatedData.sgot
+            updatedReport.cholesterol=validatedData.cholesterol
+          
+       updatedReport = await updatedReport.save()
   
       if (!updatedReport) {
         return res.status(404).json({ message: 'Report not found' });
       }
   
       // Sending the validated data to the Python server for modeling
-      const pythonResponse = await axios.post("http://127.0.0.1:8080/predict", validatedData);
+      const pythonResponse = await axios.post(REPORT_BASE_URL, validatedData);
   
       // Python gives the stage value and other details
       updatedReport = await ReportAnalysis.findByIdAndUpdate(
@@ -115,15 +116,19 @@ exports.report_add_files = async (req, res) => {
         },
         { new: true } // Return the updated document
       );
+      
+      await updatedReport.save()
   
-      res.json({ reportResult: updatedReport, analysisSuccess: true });
+      console.log('Updated Result:', updatedReport);
+
   
+      // Return the final result after all updates are done
+      res.json({ reportResult: updatedReport, analysisSuccess: true, reportId: reportId });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Internal Server Error' });
     }
   };
-
 
   exports.get_report = async (req, res) => {
     try {

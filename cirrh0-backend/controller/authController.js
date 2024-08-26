@@ -33,6 +33,8 @@ exports.register = async (req, res) => {
         fullName:fullName,//
         age:age,//
         gender:gender,
+        reportAnalysisSet:[],
+        mriAnalysisSet:[],
         loginStatus: false, // Assuming the user is not logged in initially
       });
       await newUser.save();

@@ -1,46 +1,46 @@
 import axios from "axios"
 import { ENV } from "../env/environment"
 
-export const getExtractedParameters= async(userId:String,fileURLSet:Array<String>)=>{
-    let extractedParameterResult
-    axios.post(`${ENV}/add-files-to-report/${userId}`,fileURLSet).then((res:any)=>{
-        extractedParameterResult=res.data
-    }).catch((err:Error)=>{
-        extractedParameterResult=err
-        console.log(err)
-    })
-    return extractedParameterResult
-}
+export const getExtractedParameters = async (userId: String, fileURLSet: Array<String>) => {
+    try {
+        const res = await axios.post(`${ENV}/add-files-to-report/${userId}`, { fileURLSet });
+        console.log("Extract Parameter (IN SERVICE):", res);
+        return res.data;
+    } catch (err: any) {
+        console.log(err);
+        throw err; // Rethrow the error so it can be caught in the React component
+    }
+};
 
-export const  analyseReportById =(reportAnalysisId:String,validatedReportData:Object)=>{
-    let analysisResult
-    axios.post(`${ENV}/analyze_report/${reportAnalysisId}`,validatedReportData).then((res:any)=>{
-            analysisResult=res.data
-            }).catch((err:Error)=>{
-                analysisResult=err
-               console.log(err)
-            })
-        return analysisResult
-}
+export const analyseReportById = async (reportId: string, validatedData: any) => {
+    try {
+        const response = await axios.post(`${ENV}/analyze-report`, {reportId:reportId, validatedData:validatedData });
+        console.log("Analyse Report (IN SERVICE):", response);
+        return response.data;
+    } catch (error) {
+        console.error("API Error: ", error);
+        throw error; // Rethrow the error to be caught in handleAnalyzeReport
+    }
+};
 
-export const getReportResultById = (reportAnalysisId:String)=>{
-    let reportResult
-    axios.get(`${ENV}/get-mri-report/${reportAnalysisId}`).then((res:any)=>{
-        reportResult=res.data
-    }).catch((err:Error)=>{
-        reportResult=err
-        console.log("Error",err)
-    })
-    return reportResult
-}
 
-export const deleteReportById = (reportAnalysisId:String)=>{
-    let deleteReportResult
-    axios.delete(`${ENV}/delete-report/${reportAnalysisId}`).then((res:any)=>{
-        deleteReportResult=res.data
-        }).catch((err:Error)=>{
-            deleteReportResult=err
-        })
+// Function to fetch report result by ID
+export const getReportResultById = async (reportId: string) => {
+    try {
+        const response = await axios.get(`${ENV}/get-report-by-id/${reportId}`);
+        return response.data.report;
+    } catch (error) {
+        console.error("Error fetching report result:", error);
+        throw error; // Propagate the error to be handled in the component
+    }
+};
 
-        return deleteReportResult
+export const deleteReportById = async(reportAnalysisId:String)=>{
+    try{
+        const response = await axios.get(`${ENV}/delete-report-by-id/${reportAnalysisId}`);
+        return response.data.report;
+    }catch(error:any){
+        console.error("Error DELTE report :", error);
+        throw error; 
+    }
 }

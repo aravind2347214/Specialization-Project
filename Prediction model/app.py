@@ -34,7 +34,7 @@ def predict():
         age = float(data.get('age'))
         
         gender = data.get('sex')
-        sex = 0.0 if gender == 'Female' else 1.0 if gender == 'Male' else -1.0
+        sex = 0.0 if gender == 'female' else 1.0 if gender == 'male' else -1.0
         
         ascites = 0.0 if data.get('ascites') == 'N' else 1.0 if data.get('ascites') == 'Y' else -1.0
         hepatomegaly = 0.0 if data.get('hepatomegaly') == 'N' else 1.0 if data.get('hepatomegaly') == 'Y' else -1.0
