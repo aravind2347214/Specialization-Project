@@ -9,6 +9,7 @@ from io import BytesIO
 import pdfplumber
 from datetime import datetime
 from inference_sdk import InferenceHTTPClient
+import cv2 as cv
 
 genai.configure(api_key="AIzaSyCe25AwGH0c1-8jIlYK_SCy7wGjVfWy--o")
 
@@ -96,7 +97,7 @@ def predict():
         
         # # Generate analysis using the Gemini model
         gemini_response = gemini_model.generate_content(
-            f'Generate an analysis for stage {output} liver condition, with {response}. Include lifestyle_recommendations, precautions, self_treatment_plans, and suitable doctors to visit as doctor_types. Give the output in python dictionary format as: {{"stage": "", "analysis": "", "lifestyle_recommendations": [], "precautions": [], "self_treatment_plan": [], "doctor_type": ["Doctor 1", "Doctor 2", "Doctor 3", "Doctor 4", "Doctor 5", "Doctor 6"]}}. Only give the dictionary format and no other text or symbol. NO need to specify pyhton at begining and apostrophe at end'
+            f'Generate an analysis for stage {output} liver condition, with {response}. Include lifestyle_recommendations, precautions, self_treatment_plans, and suitable doctors to visit as doctor_types. Give the output in python dictionary format as: {{"stage":"", "analysis": "", "lifestyle_recommendations": [], "precautions": [], "self_treatment_plan": [], "doctor_type": ["Doctor 1", "Doctor 2", "Doctor 3", "Doctor 4", "Doctor 5", "Doctor 6"]}}. Only give the dictionary format and no other text or symbol. NO need to specify python at begining and apostrophe at end.'
         )
 
         # # Parse and return the response from the Gemini model
@@ -167,7 +168,7 @@ def extract_details(text):
     details = {
         "bilirubin": None,
         "albumin": None,
-        "triglycerides": None,
+        "tryglycerides": None,
         "prothrombin": None,
         "copper": None,
         "platelets": None,
@@ -180,7 +181,7 @@ def extract_details(text):
     patterns = {
         "bilirubin": r"Bilirubin\s*(?:Total|Direct|Indirect)?\s*([\d\.]+)\s*(?:mg/dL)?",
         "albumin": r"Albumin\s*([\d\.]+)\s*(?:g/dL)?",
-        "triglycerides": r"Triglycerides\s*([\d\.]+)\s*(?:mg/dL)?",
+        "tryglycerides": r"Triglycerides\s*([\d\.]+)\s*(?:mg/dL)?",
         "prothrombin": r"Prothrombin\s*([\d\.]+)\s*(?:mg/dL)?",
         "copper": r"Copper\s*([\d\.]+)\s*(?:mg/dL)?",
         "platelets": r"Platelet Count\s*([\d\.]+)\s*(?:\d+/L)?",
@@ -257,7 +258,7 @@ def consolidate_reports(reports):
     consolidated_report = {
         "bilirubin": None,
         "albumin": None,
-        "triglycerides": None,
+        "tryglycerides": None,
         "prothrombin": None,
         "copper": None,
         "platelets": None,
@@ -296,16 +297,49 @@ def consolidate_reports(reports):
 
     return consolidated_report
 
-@app.route("/image", methods=["GET"])
-def image():
+@app.route("/image", methods=["POST"])
+def extract_image():
+    image_url = request.json.get('image_url')
+    if not image_url:
+        return jsonify({"error": "No image URL provided"}), 400
+
+    extracted_data = process_image(image_url)
+    return jsonify(extracted_data)
+
+def process_image(image_url):
     CLIENT = InferenceHTTPClient(
-    api_url="https://detect.roboflow.com",
-    api_key="ZEsPr7BjoeSKOgNY0L6U"
+        api_url="https://detect.roboflow.com",
+        api_key="ZEsPr7BjoeSKOgNY0L6U"
     )
-    image_url = "cirr1.jpg"
-    result = CLIENT.infer(image_url, model_id="my_liver_dieases/4")
-    print(result)
-    return (jsonify(result))
+    
+    result = CLIENT.infer(image_url, model_id="liver-yolo/1")
+    
+     # Extract the classes from the predictions
+    classes = list(set([prediction['class'] for prediction in result['predictions']]))
+    
+    # Prepare the input for the Gemini model
+    consolidated_result = {"detected_classes": classes}
+    prompt = (
+        f"Generate an analysis for {consolidated_result['detected_classes']} liver condition. "
+        "This is from a liver cirrhosis prediction model. Include diagnosis (which is the result I give you), "
+        "lifestyle_recommendations, precautions, medical_treatments, and suitable doctors to visit as doctor_types. "
+        "Give the output in Python dictionary format as: "
+        "{\"diagnosis\": [], \"analysis\": \"\", \"lifestyle_recommendations\": [], \"precautions\": [], \"medical_treatments\": [], "
+        "\"doctor_type\": [\"Doctor 1\", \"Doctor 2\", \"Doctor 3\", \"Doctor 4\", \"Doctor 5\", \"Doctor 6\"]}. "
+        "Only give the dictionary format and no other text or symbol."
+    )
+    
+    # Call the Gemini model
+    gemini_response = gemini_model.generate_content(prompt)
+    
+    # Extract the dictionary from the response using regex
+    match = re.search(r'{.*}', gemini_response.text, re.DOTALL)
+    if match:
+        response_dict = eval(match.group(0))
+    else:
+        return jsonify({"error": "Invalid response from Gemini model"}), 500
+    
+    return (response_dict)
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=3005)
