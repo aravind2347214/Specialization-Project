@@ -10,6 +10,9 @@ import { getUserById } from '../services/userServices'
 import * as authActions from "../redux/actions"
 import Loader from '../assets/Loader'
 import APIResponseStatus from '../components/APIResponseStatus'
+import axios from 'axios'
+import { analyseMRIById } from '../services/mriAnalysisServices'
+import { CLOUDINARY_CLOUDNAME } from '../env/environment'
 
 
 function MRIAnalysisPage() {
@@ -21,6 +24,8 @@ const [fileList, setFileList] = useState<any>([]);
 const [rerender, setRerender] = useState(false);
 const [networkError,setNetworkError] = useState<Boolean>(false)
 const [pageLoading, setPageLoading] = useState<any>("not-loaded")
+const [loading, setLoading] = useState<Boolean>(false);
+const [error, setError] = useState<string | null>(null);
 
 const dispatch = useDispatch()
 const navigate = useNavigate()
@@ -73,6 +78,64 @@ const removeItemFromFileList = (node: any) => {
   setFileList(newList);
 };
 
+const uploadToCloudinary = async()=>{
+  try {
+    const uploadPromises = fileList.map(async (file: any) => {
+      const data = new FormData();
+      data.append("file", file);
+      data.append("upload_preset", "image_preset");
+
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUDNAME}/auto/upload`,
+        data
+      );
+
+      return response.data.secure_url;
+    });
+
+    // Wait for all uploads to complete before returning
+    const uploadedMediaData = await Promise.all(uploadPromises);
+
+    return uploadedMediaData;
+  } catch (error:any) {
+    console.log("ERROR IN UPLOADING TO CLOUDINARY", error);
+    setLoading(false);
+    setError(error?.message || "Could not Upload To Cloud");
+  }
+}
+
+const handleAnalyseMRI=async()=>{
+  setError(""); // Clear any previous errors
+  if (fileList.length === 0) {
+    setError("Add MRI Image");
+    return; // Early return if no media files
+  }
+
+  // Upload file to Cloudinary
+  uploadToCloudinary()
+    .then((mediaRes: any) => {
+      console.log("MEDIA UPLOAD RESULT: ", mediaRes);
+
+      var MRIsendData = {
+        imageUrl:mediaRes[0],
+        age:myProfiledata?.age,
+        sex:myProfiledata?.gender
+      }
+
+      return analyseMRIById(myProfiledata._id,MRIsendData);
+    }).then((mriAnalyzeRes:any)=>{
+      if (mriAnalyzeRes.analysisSuccess) {
+        // Handle success
+        setLoading(false);
+        navigate(`/mri-result?id=${mriAnalyzeRes.reportId}`);
+    } else {
+        setError("Failed to analyze mri");
+    }
+
+    })
+
+}
+
   return (
     <>{
       pageLoading==="loaded" ?
@@ -87,11 +150,13 @@ const removeItemFromFileList = (node: any) => {
             <div 
              data-aos="fade-up" 
              data-aos-duration="600" 
-            className='text-[16px]'>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Voluptas temporibus perspiciatis quisquam autem similique ipsum, modi minus qui officiis asperiores ut quos sint, beatae culpa nostrum ratione reprehenderit quibusdam a!</div>
+            className='text-[16px] w-[95%] mx-auto'>
+Our state-of-the-art MRI analysis platform offers comprehensive evaluation of liver health through detailed scans. We expertly analyze images to detect and assess conditions such as fibrosis, cirrhosis, inflammation, steatosis, and ballooning. Utilizing advanced imaging techniques and sophisticated algorithms, we provide precise and actionable insights to support accurate diagnosis and effective management of liver diseases. Rely on our expertise for thorough and professional analysis, ensuring optimal care and informed decision-making.              </div>
             <div 
              data-aos="fade-up" 
              data-aos-duration="500" 
-            className='mt-[20px] text-[14px] w-[80%] mx-auto text-C11'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem, officiis tempore autem maiores debitis soluta nihil consequuntur! Officia quaerat sapiente et perspiciatis consequuntur, nesciunt eveniet doloribus reprehenderit omnis soluta iure!</div>
+            className='mt-[20px] text-[14px] w-[80%] mx-auto text-C11'>
+Precision in liver health assessment: Advanced MRI analysis for accurate detection of fibrosis, cirrhosis, inflammation, and more.              </div>
 
 
             {
@@ -110,11 +175,13 @@ const removeItemFromFileList = (node: any) => {
             disabled={fileList.length>0?true:false}
             accept="image/png, image/gif, image/jpeg"
         
-            />   
+            /> 
+            {
+              fileList.length===0&&
             <button
-            //  data-aos="zoom-in" 
-            //  data-aos-duration="700" 
-            //  data-aos-once
+             data-aos="fade-up" 
+             data-aos-duration="700" 
+             data-aos-once
              onClick={handleFileUpload}
              disabled={fileList.length>0}
              className={`${fileList.length>0?"cursor-not-allowed":"hover:bg-gray-100 "} mt-[50px] gap-2 border-dashed border-spacing-3 flex-col  w-full max-w-[60%]  h-[200px]  border-[3px] border-gray-200 rounded-[8px] mx-auto justify-center items-center flex`}>
@@ -131,8 +198,9 @@ const removeItemFromFileList = (node: any) => {
                 {fileList.length>0?"Remove the existing file to upload another":"Upload Your Liver MRI image"}
                 </div>
             </button>
+            }  
             {fileList.length > 0 && (
-          <div className="flex flex-col  gap-1 max-h-[150px] overflow-y-auto max-w-[60%] mx-auto mt-[10px]">
+          <div className="flex flex-col mt-[60px]  gap-1 max-h-[150px] overflow-y-auto max-w-[60%] mx-auto">
             {fileList?.map((node: any) => (
               <div className="flex items-center justify-between flex-row gap-5 px-2 py-1 text-[12px] font-semibold bg-gray-100     hover:bg-inactiveC11 text-C11 rounded-[4px]">
                 <div className="flex flex-row gap-1 item-center">
@@ -152,6 +220,10 @@ const removeItemFromFileList = (node: any) => {
                 </Tooltip>
               </div>
             ))}
+            <div className='font-semibold mt-5 text-gray-300 text-[12px] gap-1'>
+              <InfoOutlined sx={{fontSize:20}}/>
+                {fileList.length>0?"Remove the existing file to upload another":"Upload Your Liver MRI image"}
+                </div>
           </div>
         )}
             <button
@@ -159,6 +231,7 @@ const removeItemFromFileList = (node: any) => {
               data-aos-duration="700" 
               data-aos-once 
               disabled={fileList.length===0}
+              onClick={handleAnalyseMRI}
             className='shadow-md flex flex-row items-center gap-2 px-5 mt-[50px] mx-auto py-2 bg-C11 w-fit text-[14px] text-white font-semibold rounded-[2px]'>
                <div>
                 <Troubleshoot sx={{color:"white"}}/>
@@ -168,12 +241,8 @@ const removeItemFromFileList = (node: any) => {
                </div>
             </button>
                 </>
-
-              
             }
-
         </div>
-
       </div>
       <Footer/>
     
@@ -188,7 +257,6 @@ const removeItemFromFileList = (node: any) => {
       <APIResponseStatus status={false} message={`${networkError?"Network Error":"An Error Occured"}`}/>
       </div>
     }
-    
     </>
 
   )

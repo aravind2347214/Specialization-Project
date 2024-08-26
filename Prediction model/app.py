@@ -33,7 +33,7 @@ def predict():
         age = float(data.get('age'))
         
         gender = data.get('sex')
-        sex = 0.0 if gender == 'Female' else 1.0 if gender == 'Male' else -1.0
+        sex = 0.0 if gender == 'female' else 1.0 if gender == 'male' else -1.0
         
         ascites = 0.0 if data.get('ascites') == 'N' else 1.0 if data.get('ascites') == 'Y' else -1.0
         hepatomegaly = 0.0 if data.get('hepatomegaly') == 'N' else 1.0 if data.get('hepatomegaly') == 'Y' else -1.0
@@ -167,7 +167,7 @@ def extract_details(text):
     details = {
         "bilirubin": None,
         "albumin": None,
-        "triglycerides": None,
+        "tryglycerides": None,
         "prothrombin": None,
         "copper": None,
         "platelets": None,
@@ -180,7 +180,7 @@ def extract_details(text):
     patterns = {
         "bilirubin": r"Bilirubin\s*(?:Total|Direct|Indirect)?\s*([\d\.]+)\s*(?:mg/dL)?",
         "albumin": r"Albumin\s*([\d\.]+)\s*(?:g/dL)?",
-        "triglycerides": r"Triglycerides\s*([\d\.]+)\s*(?:mg/dL)?",
+        "tryglycerides": r"Triglycerides\s*([\d\.]+)\s*(?:mg/dL)?",
         "prothrombin": r"Prothrombin\s*([\d\.]+)\s*(?:mg/dL)?",
         "copper": r"Copper\s*([\d\.]+)\s*(?:mg/dL)?",
         "platelets": r"Platelet Count\s*([\d\.]+)\s*(?:\d+/L)?",
@@ -257,7 +257,7 @@ def consolidate_reports(reports):
     consolidated_report = {
         "bilirubin": None,
         "albumin": None,
-        "triglycerides": None,
+        "tryglycerides": None,
         "prothrombin": None,
         "copper": None,
         "platelets": None,

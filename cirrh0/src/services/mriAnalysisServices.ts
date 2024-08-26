@@ -1,24 +1,34 @@
 import axios from "axios"
 import { ENV } from "../env/environment"
 
-export const  analyseReport =(mriAnalysisId:String,userId:String,fileURL:String)=>{
-    let analysisResult
-    axios.post(`${ENV}/analyse-report`,{mriAnalysisId,userId,fileURL}).then((res:any)=>{
-            analysisResult=res.data
-            }).catch((err:Error)=>{
-                analysisResult=err
-               console.log(err)
-        })
-    return analysisResult
+export const  analyseMRIById =async (userId:String,data:any)=>{
+    try {
+        const response = await axios.post(`${ENV}/analyze-report/${userId}`,data);
+        console.log("Analyse MRI (IN SERVICE):", response);
+        return response.data;
+    } catch (error:any) {
+        console.error("API Error: ", error);
+        throw error; // Rethrow the error to be caught in handleAnalyzeReport
+    }
 }
 
-export const getMriResultByid = (mriAnalysisId:String)=>{
-    let mriResult
-    axios.get(`${ENV}/get-mri-report/${mriAnalysisId}`).then((res:any)=>{
-        mriResult=res.data
-    }).catch((err:Error)=>{
-        mriResult=err
-        console.log("Error",err)
-    })
-    return mriResult
+// Function to fetch mri result by ID
+export const getMRIResultById = async (reportId: string) => {
+    try {
+        const response = await axios.get(`${ENV}/get-mri-by-id/${reportId}`);
+        return response.data.report;
+    } catch (error:any) {
+        console.error("Error fetching report result:", error);
+        throw error; // Propagate the error to be handled in the component
+    }
+};
+
+export const deleteMRIById = async(mriId:String)=>{
+    try{
+        const response = await axios.get(`${ENV}/delete-mri-by-id/${mriId}`);
+        return response.data.report;
+    }catch(error:any){
+        console.error("Error DELTE mri :", error);
+        throw error; 
+    }
 }

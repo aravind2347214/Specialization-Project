@@ -2,13 +2,15 @@ const mongoose = require("mongoose");
 const mriAnalysisSchema = new mongoose.Schema({
 
     userId: { type: mongoose.Schema.Types.ObjectId,ref: 'User'},
+    age:{type:Number},
+    sex:{type:String},
     file: { type: String },
     analysis: {type: String},
-    inflamation:{type:Number},
+    diagnosis:[{type:String}],
     lifestyle_recommendations:[{type:String}],
     precautions:[{type:String}],
     date:{type:Date},
-    self_treatment_plan:[{type:String}],
+    medical_treatments:[{type:String}],
     doctor_type:[{type:String}]
     
 });

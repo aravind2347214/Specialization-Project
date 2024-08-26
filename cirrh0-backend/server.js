@@ -23,21 +23,21 @@ connectToDatabase().then(()=>{
                         app.post("/login",authRouter)
                         app.post("/logout",authRouter)
                         app.delete("/delete-all-data",authRouter)
-                        app
+                    
             
             // USER REQUESTS 
                         app.get("/get-user-by-id/:userId",userRouter)
 
             //Report Analysis REQUESTS
-                        app.post("/add-files-to-report",reportRouter)
-                        app.post("/analyze_report/:id",reportRouter)
-                        app.get("/get-report-by-id/:id",reportRouter)
-                        app.get("/delete-report-id/:id",reportRouter)
+                        app.post("/add-files-to-report/:userId",reportRouter)
+                        app.post("/analyze-report", reportRouter); // This sets a base path for the router
+                        app.get("/get-report-by-id/:reportId",reportRouter)
+                        app.delete("/delete-report-id/:reportId",reportRouter)
             
             //Report Analysis REQUESTS
-                        app.post("/analyze_mri",mriRouter)
-                        app.get("/get-mri-by-id/:id",mriRouter)
-                        app.delete("/delete-mri-by-id/:id",mriRouter)
+                        app.post("/analyze-mri/:userId",mriRouter)
+                        app.get("/get-mri-by-id/:mriId",mriRouter)
+                        app.delete("/delete-mri-by-id/:mriId",mriRouter)
 
         })  
     } catch (error) {

@@ -1,20 +1,23 @@
-const axios = require('axios')
+const axios = require('axios');
+const { IMAGE_BASE_URL } = require('../env/dotenv');
 
 exports.analyze_mri = async (req, res) => {
   try {
     const userId = req.params.userId;
-    const { imageURL } = req.body;
+    const { imageURL , sex ,age } = req.body;
 
     // Create a new MRI analysis document
     const newMRIReport = new MRIAnalysis({
       userId: userId,
       file: imageURL,
+      age:age,
+      sex:sex,
       analysis: null,
-      inflamation: null,
+      diagnosis: [],
       lifestyle_recommendations: [],
       precautions: [],
-      date: new Date(), // Corrected: new Date() gives the current date and time
-      self_treatment_plan: [],
+      date: `${new Date()}`, // Corrected: new Date() gives the current date and time
+      medical_treatments: [],
       doctor_type: []
     });
 
@@ -28,27 +31,27 @@ exports.analyze_mri = async (req, res) => {
       { new: true }
     );
 
+    const dataToSend = {
+      imageURL:imageURL,
+      age:age,
+      sex:sex
+    }
     // Send the imageURL to the Python server for analysis
-    const pythonResponse = await axios.post("pythonURL", { imageURL });
+    const pythonResponse = await axios.post(IMAGE_BASE_URL, dataToSend);
 
     // Update the MRI report with the analysis results from the Python server
-    const updatedReport = await MRIAnalysis.findByIdAndUpdate(
-      newMRIReport._id,
-      {
-        $set: {
-          analysis: pythonResponse.data.analysis,
-          inflamation: pythonResponse.data.inflamation,
-          lifestyle_recommendations: pythonResponse.data.lifestyle_recommendations,
-          precautions: pythonResponse.data.precautions,
-          self_treatment_plan: pythonResponse.data.self_treatment_plan,
-          doctor_type: pythonResponse.data.doctor_type,
-        },
-      },
-      { new: true } // Return the updated document
-    );
+    var updatedMRI = await MRIAnalysis.findById(newMRIReport._id)
+          updatedMRI.analysis=pythonResponse.data.analysis
+          updatedMRI.diagnosis=pythonResponse.data.diagnosis
+          updatedMRI.lifestyle_recommendations=pythonResponse.data.lifestyle_recommendations
+          updatedMRI.precautions=pythonResponse.data.precautions
+          updatedMRI.medical_treatments=pythonResponse.data.medical_treatments
+          updatedMRI.doctor_type=pythonResponse.data.doctor_type
+    
+    await updatedMRI.save()
 
     // Return the updated MRI report
-    res.json({ mriResult: updatedReport, analysisSuccess: true });
+    res.json({ mriResult: updatedMRI, analysisSuccess: true ,mriId});
 
   } catch (error) {
     console.error(error);

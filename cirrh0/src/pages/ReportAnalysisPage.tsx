@@ -13,7 +13,7 @@ import APIResponseStatus from "../components/APIResponseStatus";
 import { reverse } from "dns";
 import { CLOUDINARY_CLOUDNAME } from "../env/environment";
 import axios from "axios";
-import { getExtractedParameters } from "../services/reportAnalysisServices";
+import { analyseReportById, getExtractedParameters } from "../services/reportAnalysisServices";
 import ReportResultModal from "../modals/ReportResultModal";
 
 
@@ -29,6 +29,8 @@ function ReportAnalysisPage() {
   const [loading, setLoading] = useState<Boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [resultStatus,setResultStatus] = useState<String>("result-loaded")
+  const [reportId,setReportId]= useState<any>("")
+
 
 
 
@@ -69,6 +71,59 @@ function ReportAnalysisPage() {
   const myProfiledata = useSelector(
     (state: any) => state.authReducer.myUserProfile
   );
+
+  const [validatedData,setValidatedData]=useState<any>({
+    ascites:"",
+    edema: "",
+    spiders: "",
+    hepatomegaly: "",
+    bilirubin: "",
+    albumin: "",
+    prothrombin: "",
+    copper: "",
+    alk_phos: "",
+    platelets:"",
+    sex:"",
+    age:"",
+    tryglycerides:"",
+    sgot:"",
+    cholesterol:"",
+})
+
+const validateData = () => {
+  let missingFields:any = [];
+  const requiredFields = [
+    'ascites',
+    'edema',
+    'spiders',
+    'hepatomegaly',
+    'bilirubin',
+    'albumin',
+    'prothrombin',
+    'copper',
+    'alk_phos',
+    'platelets',
+    'sex',
+    'age',
+    'tryglycerides',
+    'sgot',
+    'cholesterol'
+  ];
+
+  requiredFields.forEach(field => {
+    if (!validatedData[field] || validatedData[field] === ' ') {
+      missingFields.push(field);
+    }
+  });
+
+  if (missingFields.length > 0) {
+    setError(`Please fill out the following fields: ${missingFields.join(', ')}`);
+    return false;
+  }
+
+  setError(null); // Clear previous errors if all fields are filled
+  return true;
+};
 
  
 
@@ -113,57 +168,128 @@ function ReportAnalysisPage() {
     }
 }
 
-const handleExtractParameters = async()=>{
-  window.scrollTo(300,300)
-  if(fileList.length===0){
-    setError("Add atleast one media")
+const handleExtractParameters = () => {
+  setError(""); // Clear any previous errors
+  if (fileList.length === 0) {
+    setError("Add at least one media");
+    return; // Early return if no media files
   }
-  else{
-    setLoading(true);
-    try {
-      await uploadToCloudinary().then(async(res:any)=>{
-        console.log("MEDIA UPLOAD RESULT : ",res)
-        setLoading(false);
-        await getExtractedParameters(myProfiledata?._id,res).then((res:any)=>{
-          console.log("(INREACT) UPLOAD MEDIA RESULT: ", res);
 
-          if(res.addSuccess){
-           
-            setFileList([]);
-            // setAddMediaModal(false);
-            // triggerRerender();
+  setLoading(true);
+
+  // Upload files to Cloudinary
+  uploadToCloudinary()
+    .then((mediaRes: any) => {
+      console.log("MEDIA UPLOAD RESULT: ", mediaRes);
+
+      // Extract parameters from uploaded media
+      return getExtractedParameters(myProfiledata._id, mediaRes);
+    })
+    .then((extractedRes: any) => {
+      console.log("(IN REACT) EXTRACTED PARAMETERS RESULT: ", extractedRes);
+
+      if (extractedRes && extractedRes.extractSuccess) {
+        setFileList([]); // Clear the file list after successful extraction
+        setValidatedData(
+          (prevData:any)=>({
+            ...prevData,
+            age:myProfiledata?.age,
+            sex:myProfiledata?.gender,
+            ascites:extractedRes.extractedData.ascites,
+            edema:extractedRes.extractedData.edema,
+            spiders:extractedRes.extractedData.spiders,
+            hepatomegaly:extractedRes.extractedData.hepatomegaly,
+            bilirubin:extractedRes.extractedData.bilirubin,
+            albumin:extractedRes.extractedData.albumin,
+            prothrombin:extractedRes.extractedData.prothrombin,
+            copper:extractedRes.extractedData.copper,
+            alk_phos:extractedRes.extractedData.alk_phos,
+            platelets:extractedRes.extractedData.platelets,
+            tryglycerides:extractedRes.extractedData.tryglycerides,
+            sgot:extractedRes.extractedData.sgot,
+            cholesterol:extractedRes.extractedData.cholesterol
+
+
+          })
+        ); // Update state with extracted data
+        setReportId(extractedRes.reportId); // Set the report ID
+      } else {
+        setError("Something went wrong during extraction");
+      }
+    })
+    .catch((err: any) => {
+      console.error("Error: ", err);
+      setError(err?.message || "Something went wrong during the process");
+    })
+    .finally(() => {
+      setLoading(false); // Ensure loading state is reset
+    });
+};
+
+
+
+
+// useEffect(() => {
+//   if(loading){
+//     document.body.style.overflow = "hidden";
+//   }
+//   else{
+//       document.body.style.overflow = "scroll"
+//   };
+// }, [loading]);
+
+const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const { name, value } = e.target;
+  setValidatedData((prevData:any) => ({
+      ...prevData,
+      [name]: value
+  }));
+};
+
+
+const handleAnalyzeReport = async () => {
+  console.log("VAlidated Data : ",validatedData)
+  // set age and sex for the validation state variable using the setValiadatedData
+  setValidatedData((prevData:any) => ({
+    ...prevData,
+    age: myProfiledata.age || 0,
+    sex: myProfiledata.gender || ''
+    }));
+
+  if (!validateData()) {
+      setError("Validation failed. Please check your input.");
+      return; // Stop execution if validation fails
+  }
+
+  if (myProfiledata?._id && validatedData) {
+      setLoading(true);
+
+      try {
+          const reportData = {
+              userId: myProfiledata._id,
+              ...validatedData
+          };
+
+          const response: any = await analyseReportById(reportId, reportData);
+
+          if (response.analysisSuccess) {
+              // Handle success
+              setLoading(false);
+              navigate(`/report-result?id=${response.reportId}`);
+          } else {
+              setError("Failed to analyze report");
           }
-          else{
-            setLoading(false);
-            setError("Something went wrong");
-          }
-  
-        }).catch((err:any)=>{
-          console.log("(INREACT) UPLOAD MEDIA ERROR: ", err);
-  
-        })
-      }).catch((err:any)=>{
-        console.log("MEDIA UPLOAD ERROR INCLOUDINARY : ",err)
-      })
-
-    } catch (err:any) {
-      setLoading(false);
-      setError(err?.message || "Something went wrong");
-    }
+      } catch (err: any) {
+          console.error("Error: ", err);
+          setError(err?.message || "Something went wrong");
+      } finally {
+          setLoading(false);
+      }
+  } else {
+      setError("User profile or validated data is missing");
   }
-   
+};
 
-
-}
-
-useEffect(() => {
-  if(loading){
-    document.body.style.overflow = "hidden";
-  }
-  else{
-      document.body.style.overflow = "scroll"
-  };
-}, [loading]);
 
 
   
@@ -174,7 +300,7 @@ useEffect(() => {
       <div className="flex flex-col justify-between h-screen">
          {
             loading?
-            <div className="absolute min-w-[100vw] top-0 left-0  z-[100] min-h-[100vh] bg-[#0000005f] justify-center flex items-center">
+            <div className="absolute min-w-[100vw] top-0 left-0  z-[100] min-h-[100vh]  justify-center flex items-center">
               <Loader/>
             </div>:
             null
@@ -196,20 +322,22 @@ useEffect(() => {
             data-aos-duration="700"
             className="text-[16px]"
           >
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Voluptas
-            temporibus perspiciatis quisquam autem similique ipsum, modi minus
-            qui officiis asperiores ut quos sint, beatae culpa nostrum ratione
-            reprehenderit quibusdam a!
+           Elevate your diagnostic precision with our advanced report analysis platform. 
+           We meticulously evaluate MRI and other imaging reports to identify key conditions
+            such as fibrosis, cirrhosis, inflammation, steatosis, and ballooning. 
+            Our expert analysis integrates cutting-edge technology and clinical 
+            expertise to deliver clear, actionable insights, ensuring comprehensive 
+            understanding and effective management of liver health. Trust our platform for detailed, 
+            accurate interpretations that support informed medical decisions.
           </div>
           <div
             data-aos="fade-up"
             data-aos-duration="600"
             className="mt-[20px] text-[14px] w-[80%] mx-auto text-C11"
           >
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem,
-            officiis tempore autem maiores debitis soluta nihil consequuntur!
-            Officia quaerat sapiente et perspiciatis consequuntur, nesciunt
-            eveniet doloribus reprehenderit omnis soluta iure!
+            Expert report analysis for precise liver condition insights: Advanced 
+            evaluation of fibrosis, cirrhosis, inflammation, and more for optimal
+             care and management.
           </div>
           {!myProfiledata?.username ? (
             <>
@@ -224,6 +352,8 @@ useEffect(() => {
             </>
           ) : (
             <>
+            {
+              reportId===""?
               <div className="flex flex-col items-center justify-between gap-3 px-2 py-5 ">
                 <div className="min-w-[49%] justify-center flex flex-col gap-[10px]   mx-auto">
                   <input
@@ -280,7 +410,8 @@ useEffect(() => {
                   <InfoOutlined sx={{fontSize:16}}/>
                   <div
                     data-aos="fade-up" 
-                    data-aos-duration="800"  
+                    data-aos-duration="800" 
+                    data-aos-once 
                   className=" flex flex-col text-[12px] justify-center gap-[5px]">
                 Certain parameters within these documents are required to conduct the analysis.There could be errors on the extracted values
                 </div>
@@ -297,10 +428,11 @@ useEffect(() => {
                     Extract Report Parameters
                   </button>
                 </div>
-              </div>
+              </div>:null
+            }
 
-              <div className="flex flex-row justify-between gap-[20px]  px-[100px] mt-[50px]">
-                <div className="flex flex-col gap-[20px]">
+              <div className="flex flex-row justify-between gap-[20px]   px-[100px] mt-[50px]">
+                <div className="flex flex-col gap-[20px] w-[60%]">
                   <div
                   data-aos="fade-up" 
                   data-aos-duration="1000" 
@@ -311,9 +443,14 @@ useEffect(() => {
                       Do you have <strong> Ascites</strong>?
                     </div>
                     <div className="text-left">
-                      Description about what that dicease is{" "}
+                    Abnormal fluid buildup in the abdominal cavity, causing swelling. Often linked to liver disease, heart failure, or kidney problems. Diagnosed through imaging and treated based on cause
                     </div>
-                    <select className=" w-[100px] py-2 px-2 mt-[5px]  rounded-[2px] text-[12px] bg-gray-100 border border-gray-300 outline-none focus:border-C11">
+                    <select
+                    name="ascites" 
+                    value={validatedData.ascites}
+                    onChange={handleInputChange}
+                    className=" w-[100px] py-2 px-2 mt-[5px]  rounded-[2px] text-[12px] bg-gray-100 border border-gray-300 outline-none focus:border-C11">
+                      <option value="" selected>Select option</option>
                       <option value="Y">Yes</option>
                       <option value="N">No</option>
                     </select>
@@ -329,9 +466,15 @@ useEffect(() => {
                       Do you have <strong> Edema</strong>?
                     </div>
                     <div className="text-left">
-                      Description about what that dicease is{" "}
+                    Swelling due to excess fluid in body tissues. Common causes include injury, heart failure, kidney disease, or medications. Treatment focuses on the underlying condition.
                     </div>
-                    <select className=" w-[200px] py-2 px-2 mt-[5px]  rounded-[2px] text-[12px] bg-gray-100 border border-gray-300 outline-none focus:border-C11">
+                    <select 
+                    name="edema"
+                    value={validatedData.edema}
+                    onChange={handleInputChange}
+
+                    className=" w-[200px] py-2 px-2 mt-[5px]  rounded-[2px] text-[12px] bg-gray-100 border border-gray-300 outline-none focus:border-C11">
+                      <option value="" selected>Select option</option>
                       <option value="Y">Edema Desipite Diuretic Therapy</option>
                       <option value="S">Edema Present Without Diuretics or Edema Resolved by Diuretics</option>
                       <option value="N">No Edema and No Diuretic Therapy for Edema</option> 
@@ -348,9 +491,14 @@ useEffect(() => {
                       Do you have <strong> Spiders</strong>?
                     </div>
                     <div className="text-left">
-                      Description about what that dicease is{" "}
+                    Small, dilated blood vessels on the skin resembling spider webs. Often linked to hormonal changes or liver disease. Treatment is typically cosmetic or aimed at underlying causes
                     </div>
-                    <select className=" w-[100px] py-2 px-2 mt-[5px]  rounded-[2px] text-[12px] bg-gray-100 border border-gray-300 outline-none focus:border-C11">
+                    <select
+                    name="spiders"
+                    value={validatedData.spiders}
+                    onChange={handleInputChange}
+                     className=" w-[100px] py-2 px-2 mt-[5px]  rounded-[2px] text-[12px] bg-gray-100 border border-gray-300 outline-none focus:border-C11">
+                      <option value="" selected>Select option</option>
                       <option value="Y">Yes</option>
                       <option value="N">No</option>
                     </select>
@@ -366,9 +514,14 @@ useEffect(() => {
                       Do you have <strong> Hepatomegaly</strong>?
                     </div>
                     <div className="text-left">
-                      Description about what that dicease is{" "}
+                    Enlarged liver often due to liver disease, heart failure, or cancer. Diagnosed via physical exam and imaging; treatment addresses the underlying condition causing the enlargement.
                     </div>
-                    <select className=" w-[100px] py-2 px-2 mt-[5px] rounded-[2px] text-[12px] bg-gray-100 border border-gray-300 outline-none focus:border-C11">
+                    <select 
+                    name="hepatomegaly"
+                    value={validatedData.hepatomegaly}
+                    onChange={handleInputChange}
+                    className=" w-[100px] py-2 px-2 mt-[5px] rounded-[2px] text-[12px] bg-gray-100 border border-gray-300 outline-none focus:border-C11">
+                      <option value="" selected>Select option</option>
                       <option value="Y">Yes</option>
                       <option value="N">No</option>
                     </select>
@@ -379,7 +532,7 @@ useEffect(() => {
                 data-aos="fade-up" 
                 data-aos-duration="800" 
                 data-aos-once 
-                className="w-1/2">
+                className="flex flex-col pt-[50px] w-1/2">
                   <div className="font-bold league-spartan text-C11 text-[25px]">
                     Analysis Parameters
                   </div>
@@ -388,7 +541,7 @@ useEffect(() => {
                      data-aos="fade-up" 
                      data-aos-duration="900"
                      data-aos-once  
-                  className="flex flex-wrap gap-[30px]">
+                  className="flex flex-wrap gap-[30px] justify-center">
                     <div
                  
                      className="flex flex-col justify-start w-[100px] mt-3">
@@ -397,6 +550,9 @@ useEffect(() => {
                       </div>
                       <input
                         type="text"
+                        name="bilirubin"
+                        value={validatedData?.bilirubin}
+                        onChange={handleInputChange}
                         className="border-gray-300 border py-2 px-2 bg-gray-100  rounded-[2px] text-[12px] outline-none focus:border-C11"
                       />
                     </div>
@@ -406,7 +562,9 @@ useEffect(() => {
                         Albumin
                       </div>
                       <input
+                       name="albumin"
                         type="text"
+                        value={validatedData?.albumin}
                         className=" border-gray-300 border py-2 px-2 bg-gray-100 outline-none focus:border-C11 rounded-[2px] text-[12px]"
                       />
                     </div>
@@ -416,7 +574,23 @@ useEffect(() => {
                         Copper
                       </div>
                       <input
+                      name="copper"
                         type="text"
+                        value={validatedData?.copper}
+                        onChange={handleInputChange}
+                        className=" border-gray-300 border py-2 px-2 bg-gray-100 outline-none focus:border-C11 rounded-[2px] text-[12px]"
+                      />
+                    </div>
+
+                    <div className="flex flex-col justify-start w-[100px] mt-3">
+                      <div className="text-left text-C11  text-[10px]">
+                        Cholesterol
+                      </div>
+                      <input
+                        name="cholesterol"
+                        type="text"
+                        value={validatedData?.cholesterol}
+                        onChange={handleInputChange}
                         className=" border-gray-300 border py-2 px-2 bg-gray-100 outline-none focus:border-C11 rounded-[2px] text-[12px]"
                       />
                     </div>
@@ -426,7 +600,10 @@ useEffect(() => {
                         Alk_Phos
                       </div>
                       <input
+                        name="alk_phos"
                         type="text"
+                        value={validatedData?.alk_phos}
+                        onChange={handleInputChange}
                         className="border-gray-300 border py-2 px-2 bg-gray-100 outline-none focus:border-C11 rounded-[2px] text-[12px]"
                       />
                     </div>
@@ -437,16 +614,22 @@ useEffect(() => {
                       </div>
                       <input
                         type="text"
+                        name="sgot"
+                        value={validatedData?.sgot}
+                        onChange={handleInputChange}
                         className="border-gray-300 border py-2 px-2 bg-gray-100 outline-none focus:border-C11 rounded-[2px] text-[12px]"
                       />
                     </div>
 
                     <div className="flex flex-col justify-start w-[100px] mt-3">
                       <div className="text-left text-C11  text-[10px]">
-                        Tryglicerides
+                        Tryglycerides
                       </div>
                       <input
                         type="text"
+                        name="tryglycerides"
+                        value={validatedData?.tryglycerides}
+                        onChange={handleInputChange}
                         className="border-gray-300 border py-2 px-2 bg-gray-100 outline-none focus:border-C11 rounded-[2px] text-[12px]"
                       />
                     </div>
@@ -457,6 +640,9 @@ useEffect(() => {
                       </div>
                       <input
                         type="text"
+                        name="platelets"
+                        value={validatedData?.platelets}
+                        onChange={handleInputChange}
                         className="border-gray-300 border py-2 px-2 bg-gray-100 outline-none focus:border-C11 rounded-[2px] text-[12px]"
                       />
                     </div>
@@ -467,6 +653,9 @@ useEffect(() => {
                       </div>
                       <input
                         type="text"
+                        name="prothrombin"
+                        value={validatedData?.prothrombin}
+                        onChange={handleInputChange}
                         className="border-gray-300 border py-2 px-2 bg-gray-100 outline-none focus:border-C11 rounded-[2px] text-[12px]"
                       />
                     </div>
@@ -476,17 +665,23 @@ useEffect(() => {
                      data-aos-duration="1000"
                      data-aos-once 
                    className="flex flex-row items-center gap-1 mt-5 text-C11">
-                  <InfoOutlined sx={{fontSize:16}}/>
                   <div className=" flex flex-col text-[12px] justify-center gap-[5px]">
                   Please Note that all values are authentic and please cross check with the actual document 
                 </div>
                   </div>
                 </div>
               </div>
+                {error && (
+                  <div className="text-red-600 text-[14px] text-center mt-4">
+                    {error}
+                  </div>
+                )}
+              
               <button
                 data-aos="fade-up"
                 data-aos-duration="800"
                 data-aos-once
+                onClick={handleAnalyzeReport}
                 className="shadow-md flex flex-row gap-2 px-5 mt-[20px] mx-auto py-2 bg-C11 w-fit text-[14px] text-white font-semibold rounded-[2px]"
               >
                 <div>

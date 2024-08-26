@@ -32,8 +32,9 @@ export const dummyReportResult = {
 
 
 export const dummyMRIresult={
-    inflamation:100,
-    fibrosis:200,
+    diagnosis:["Fibrosis","Balooning"],
+    userId:"lskfmsldk",
+    date:"2005-06-07",
     imageURL:"https://media.springernature.com/lw685/springer-static/image/art%3A10.1007%2Fs13244-010-0034-7/MediaObjects/13244_2010_34_Fig7_HTML.jpg",
     analysis :"Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quasi voluptate in incidunt, officia aperiam itaque asperiores totam iusto, corrupti architecto tempore ipsam voluptates sunt officiis aspernatur quisquam unde labore voluptas.Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quasi voluptate in incidunt, officia aperiam itaque asperiores totam iusto, corrupti architecto tempore ipsam voluptates sunt officiis aspernatur quisquam unde labore voluptas.Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quasi voluptate in incidunt, officia aperiam itaque asperiores totam iusto, corrupti architecto tempore ipsam voluptates sunt officiis aspernatur quisquam unde labore voluptas.Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quasi voluptate in incidunt, officia aperiam itaque asperiores totam iusto, corrupti architecto tempore ipsam voluptates sunt officiis aspernatur quisquam unde labore voluptas.",
     lifestyle_recommendations:[
@@ -48,7 +49,7 @@ export const dummyMRIresult={
         "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quasi voluptate in incidunt, officia aperiam itaque asperiores totam iusto,",
         "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quasi voluptate in incidunt, officia aperiam itaque asperiores totam iusto,"
     ],
-    self_treatment_plan:[
+    medical_treatments:[
         "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quasi voluptate in incidunt, officia aperiam itaque asperiores totam iusto,",
         "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quasi voluptate in incidunt, officia aperiam itaque asperiores totam iusto,",
         "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quasi voluptate in incidunt, officia aperiam itaque asperiores totam iusto,",

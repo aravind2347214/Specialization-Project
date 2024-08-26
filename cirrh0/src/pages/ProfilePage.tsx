@@ -9,6 +9,7 @@ import * as authActions from "../redux/actions"
 import { FindInPage, ImageSearch } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { Tooltip } from '@mui/material';
+import moment from 'moment';
 
 
 function ProfilePage() {
@@ -62,6 +63,7 @@ function ProfilePage() {
     {reportName:"Analysis 5 30th Aug"},
   ]
 
+  console.log("UserDetails : ",myProfiledata)
 
   return (
     <div className='flex flex-col justify-between h-screen'>
@@ -80,9 +82,11 @@ function ProfilePage() {
         <div>
           <div className='font-bold league-spartan text-[20px] text-C11 flex flex-row gap-1 items-center ' data-aos="fade-up" data-aos-duration="800"><FindInPage sx={{fontSize:20}}/><div>All Test Analysis Reports</div> </div>
           <div data-aos="fade-up" data-aos-duration="900" className='flex flex-col gap-2 max-h-[150px] overflow-y-auto pl-[20px] mt-[10px]'>
-            {dummyAnalysisreports.map((node:any, index:any) => (
+            {myProfiledata?.reportAnalysisSet.map((node:any, index:any) => (
             <Tooltip title="View Result" placement='right' arrow>
-              <Link to={`/report-result?id=${node.reportName}`} className='cursor-pointer p-1  px-2 hover:hover:bg-[#a9030628] transition-all duration-[0.1s] text-[14px] hover:border-l-[5px] hover:border-C11   hover:font-semibold hover:underline underline-offset-1' key={index} >{node?.reportName}</Link>
+              <Link to={`/report-result?id=${node._id}`} className='cursor-pointer p-1  px-2 hover:hover:bg-[#a9030628] transition-all duration-[0.1s] text-[14px] hover:border-l-[5px] hover:border-C11   hover:font-semibold hover:underline underline-offset-1' key={index} >
+              {`${moment(node.date).format('llll')}`}
+              </Link>
             </Tooltip>
            ))}
           </div>

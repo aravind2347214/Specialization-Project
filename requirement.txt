@@ -1,9 +1,1 @@
-flask
-joblib
-requests
-google.generativeai
-re
-io
-pdfplumber
-datetime
-inference_sdk
+flask joblib requests google.generativeai re io pdfplumber datetime inference_sdk
