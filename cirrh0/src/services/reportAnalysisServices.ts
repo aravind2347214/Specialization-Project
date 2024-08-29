@@ -35,10 +35,10 @@ export const getReportResultById = async (reportId: string) => {
     }
 };
 
-export const deleteReportById = async(reportAnalysisId:String)=>{
+export const deleteReportById = async(reportId:String)=>{
     try{
-        const response = await axios.get(`${ENV}/delete-report-by-id/${reportAnalysisId}`);
-        return response.data.report;
+        const response = await axios.delete(`${ENV}/delete-report-by-id/${reportId}`);
+        return response.data;
     }catch(error:any){
         console.error("Error DELTE report :", error);
         throw error; 

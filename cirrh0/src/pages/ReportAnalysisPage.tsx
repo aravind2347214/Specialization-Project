@@ -307,7 +307,7 @@ const handleAnalyzeReport = async () => {
           }
       <Navbar activePage="report-analysis" />
       <div className="flex flex-col flex-1 pt-[70px] ">
-        <div className="flex flex-col justify-center text-center mt-[50px] lg:w-[80%] mx-auto relative">
+        <div className={`flex flex-col justify-center text-center ${myProfiledata?.username?"mt-[50px]":"mt-[155px]"} mt-[50px] lg:w-[80%] mx-auto relative`}>
 
 
           <div
@@ -336,8 +336,7 @@ const handleAnalyzeReport = async () => {
             className="mt-[20px] text-[14px] w-[80%] mx-auto text-C11"
           >
             Expert report analysis for precise liver condition insights: Advanced 
-            evaluation of fibrosis, cirrhosis, inflammation, and more for optimal
-             care and management.
+            evaluation of Stage of  the cirrhosis and the relevant suggestions and treatment plans
           </div>
           {!myProfiledata?.username ? (
             <>

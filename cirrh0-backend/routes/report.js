@@ -12,6 +12,6 @@ reportRouter.post("/analyze-report", reportController.analyze_report);
 reportRouter.get("/get-report-by-id/:reportId",reportController.get_report)
 
 // Delete  report
-reportRouter.delete("/delete-report/:reportId",reportController.delete_report)
+reportRouter.delete("/delete-report-by-id/:reportId",reportController.delete_report)
 
 module.exports = reportRouter;

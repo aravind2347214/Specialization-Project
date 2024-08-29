@@ -110,24 +110,24 @@ const handleAnalyseMRI=async()=>{
     setError("Add MRI Image");
     return; // Early return if no media files
   }
-
+  setLoading(true)
   // Upload file to Cloudinary
   uploadToCloudinary()
     .then((mediaRes: any) => {
       console.log("MEDIA UPLOAD RESULT: ", mediaRes);
 
       var MRIsendData = {
-        imageUrl:mediaRes[0],
+        imageURL:mediaRes[0],
         age:myProfiledata?.age,
         sex:myProfiledata?.gender
       }
 
       return analyseMRIById(myProfiledata._id,MRIsendData);
-    }).then((mriAnalyzeRes:any)=>{
+    }).then(async (mriAnalyzeRes:any)=>{
       if (mriAnalyzeRes.analysisSuccess) {
         // Handle success
-        setLoading(false);
-        navigate(`/mri-result?id=${mriAnalyzeRes.reportId}`);
+        setLoading(false)
+        navigate(`/mri-result?id=${mriAnalyzeRes.mriId}`);
     } else {
         setError("Failed to analyze mri");
     }
@@ -136,13 +136,29 @@ const handleAnalyseMRI=async()=>{
 
 }
 
+useEffect(() => {
+  if(loading){
+    document.body.style.overflow = "hidden";
+  }
+  else{
+      document.body.style.overflow = "scroll"
+  };
+}, [loading]);
+
   return (
     <>{
       pageLoading==="loaded" ?
-      <div className='flex flex-col justify-between h-screen'>
+      <div className='flex flex-col justify-between h-screen '>
+        {
+            loading?
+            <div className="absolute min-w-[100vw] top-0 left-0 bg-[#0000006c]  z-[100] min-h-full  justify-center flex items-center">
+              <Loader/>
+            </div>:
+            null
+         }
       <Navbar activePage ="mri-analysis"/>
       <div className='flex flex-col flex-1 pt-[70px] '>
-        <div className='flex flex-col justify-center text-center mt-[50px] w-[80%] mx-auto'>
+        <div className={`flex flex-col justify-center text-center ${myProfiledata?.username?"mt-[50px]":"mt-[155px]"}  w-[80%] mx-auto`}>
             <div 
              data-aos="fade-up" 
              data-aos-duration="700" 

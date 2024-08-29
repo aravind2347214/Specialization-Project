@@ -10,6 +10,7 @@ import { getUserById } from "../services/userServices";
 import * as authActions from "../redux/actions";
 import APIResponseStatus from "../components/APIResponseStatus";
 import Loader from "../assets/Loader";
+import { Link } from "react-router-dom";
 
 function HomePage() {
   const [rerender, setRerender] = useState(false);
@@ -63,13 +64,14 @@ function HomePage() {
       {pageLoading === "loaded" ? (
         <div className="flex flex-col justify-between h-screen">
           <Navbar activePage="home" />
-          <div className="flex flex-col flex-1 pt-[70px] ">
+          <div className="flex flex-col flex-1">
             {/* Home Page Hero */}
-            <div className="flex flex-col  justify-center mx-auto text-center mt-[200px] gap-[10px]">
+            <div className="  min-h-screen  backgroundjif  mx-auto text-center gap-[10px]">
+             <div className="flex flex-col justify-center w-full h-full bg-[#0000008e] ">
               <div
                 data-aos="fade-up"
                 data-aos-duration="700"
-                className="text-[70px]  mx-auto text-center text-C11 font-bold league-spartan"
+                className="text-[70px] pt-[70px] mx-auto text-center text-white font-bold league-spartan"
               >
                 Redefining Liver Cirrhosis Analysis
               </div>
@@ -77,7 +79,7 @@ function HomePage() {
               <div
                 data-aos="fade-up"
                 data-aos-duration="600"
-                className="w-[70%] mx-auto text-[20px]"
+                className="w-[60%] mx-auto text-[20px] text-white font"
               >
                 Welcome to Cirrh0, where cutting-edge machine learning redefines liver cirrhosis
                  management. Our advanced platform provides real-time predictions and actionable 
@@ -86,20 +88,28 @@ function HomePage() {
                      management and enhanced liver health outcomes. Experience innovation
                                            and ease with Cirrh0
               </div>
-              <div
+             { !myProfiledata?.username&&
+                <Link
+                data-aos="fade-up" 
+                data-aos-duration="700" 
+                to="/report-analysis" className='shadow-md flex flex-row items-center gap-2 px-5 mt-[30px] mx-auto py-2 bg-C11 w-fit text-[14px] text-white font-semibold rounded-[2px]'>Explore Report Analyzer</Link>
+                }
+              {/* <div
                 data-aos="fade-up"
                 data-aos-duration="500"
                 className="text-[14px] w-[50%] mx-auto text-C11"
               >
               Advanced Insights and Suggestions for Cirrhosis
+           </div> */}
            </div>
             </div>
 
             {/* Section 2 */}
-            <div className="mx-auto w-[80%] flex flex-row-reverse mt-[100px] gap-[50px] items-center">
+            <div className="mx-auto w-[80%]  my-[50px] flex flex-row-reverse mt-[100px] gap-[50px] items-center">
               <div
                 data-aos="fade-up"
                 data-aos-duration="900"
+                data-aos-once
                 className="  bg-gray-100  rounded-[2px] justify-center items-center flex border-C11 border-[1px]"
               >
                 <img
@@ -111,14 +121,16 @@ function HomePage() {
                 <div
                   data-aos="fade-up"
                   data-aos-duration="700"
-                  className="text-C11 font-semibold text-[35px] league-spartan"
+                  data-aos-once
+                  className="text-C11 font-semibold text-[45px] league-spartan"
                 >
                   Liver Cirrhosis
                 </div>
                 <div
                   data-aos="fade-up"
                   data-aos-duration="600"
-                  className="text-[18px]"
+                  data-aos-once
+                  className="text-[20px]"
                 >
                   Liver cirrhosis is a progressive condition characterized by
                   the scarring of liver tissue, which impairs its ability to
@@ -130,7 +142,8 @@ function HomePage() {
                 <div
                   data-aos="fade-up"
                   data-aos-duration="500"
-                  className="text-[14px] text-C11"
+                  data-aos-once
+                  className="text-[16px] text-C11"
                 >
                   As cirrhosis advances, it can lead to complications such as
                   liver failure, portal hypertension, and liver cancer. Managing
@@ -143,10 +156,11 @@ function HomePage() {
             </div>
 
             {/* Section 1 */}
-            <div className="mx-auto w-[80%] flex flex-row mt-[100px] gap-[50px] items-center">
+            <div className="mx-auto w-[80%] my-[50px] flex flex-row mt-[100px] gap-[50px] items-center">
               <div
                 data-aos="fade-up"
                 data-aos-duration="900"
+                data-aos-once
                 className="  bg-gray-100 rounded-[2px] justify-center items-center flex border-C11 border-[1px]"
               >
                 <img
@@ -156,8 +170,9 @@ function HomePage() {
               </div>
               <div className="flex flex-col gap-[20px]">
                 <div
-                  className="text-C11 font-semibold text-[35px] league-spartan"
+                  className="text-C11 font-semibold text-[45px] league-spartan"
                   data-aos="fade-up"
+                  data-aos-once
                   data-aos-duration="700"
                 >
                   Healthy Liver
@@ -165,7 +180,8 @@ function HomePage() {
                 <div
                   data-aos="fade-up"
                   data-aos-duration="600"
-                  className="text-[18px]"
+                  className="text-[20px]"
+                  data-aos-once
                 >
                   Maintaining a healthy liver is essential for overall
                   well-being. The liver performs vital functions, including
@@ -175,7 +191,8 @@ function HomePage() {
                 <div
                   data-aos="fade-up"
                   data-aos-duration="500"
-                  className="text-[14px] text-C11"
+                  data-aos-once
+                  className="text-[16px] text-C11"
                 >
                   To support liver health, adopt a balanced lifestyle with a
                   diet rich in fruits, vegetables, whole grains, and lean

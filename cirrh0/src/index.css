@@ -216,3 +216,14 @@ td,th{
 td:hover,th:hover{
   background-color: #a9030628;
 }
+
+
+
+.backgroundjif{
+  background-image: url('./assets/homepagejif.gif');
+  background-repeat: no-repeat;
+  filter: opacity(1);
+  background-color: black;
+  background-size: cover;
+  background-attachment: fixed;
+}

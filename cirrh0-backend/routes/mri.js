@@ -6,7 +6,7 @@ const mriController = require("../controller/mriController");
 mriRouter.post("/analyze-mri/:userId", mriController.analyze_mri)
 
 // get mri
-mriRouter.post("/get-mri-by-id/:mriId",mriController.get_mri)
+mriRouter.get("/get-mri-by-id/:mriId",mriController.get_mri)
 
 // Delete  report
 mriRouter.delete("/delete-mri-by-id/:mriId",mriController.delete_mri)

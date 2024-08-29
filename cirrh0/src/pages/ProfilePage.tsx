@@ -6,10 +6,12 @@ import { getUserById } from '../services/userServices';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import * as authActions from "../redux/actions"
-import { FindInPage, ImageSearch } from '@mui/icons-material';
+import { Delete, FindInPage, ImageSearch, Title } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { Tooltip } from '@mui/material';
 import moment from 'moment';
+import { deleteReportById } from '../services/reportAnalysisServices';
+import { deleteMRIById } from '../services/mriAnalysisServices';
 
 
 function ProfilePage() {
@@ -55,16 +57,28 @@ function ProfilePage() {
 
   }, [rerender]);
 
-  const dummyAnalysisreports=[
-    {reportName:"Analysis 1 20th Aug"},
-    {reportName:"Analysis 2 23th Aug"},
-    {reportName:"Analysis 3 25th Aug"},
-    {reportName:"Analysis 4 26th Aug"},
-    {reportName:"Analysis 5 30th Aug"},
-  ]
+
+  const handleDeleteReport = async (reportId:any) => {
+    try {
+      await deleteReportById(reportId);
+      setRerender(!rerender); // Trigger rerender to refresh data
+    } catch (err) {
+      console.error("Failed to delete report:", err);
+    }
+  };
+
+  
+  const handleDeleteMRI = async (mriId:any) => {
+    try {
+      await deleteMRIById(mriId);
+      setRerender(!rerender); // Trigger rerender to refresh data
+    } catch (err) {
+      console.error("Failed to delete MRI:", err);
+    }
+  };
 
   console.log("UserDetails : ",myProfiledata)
-
+  
   return (
     <div className='flex flex-col justify-between h-screen'>
       <Navbar activePage ="profile"/>
@@ -83,20 +97,32 @@ function ProfilePage() {
           <div className='font-bold league-spartan text-[20px] text-C11 flex flex-row gap-1 items-center ' data-aos="fade-up" data-aos-duration="800"><FindInPage sx={{fontSize:20}}/><div>All Test Analysis Reports</div> </div>
           <div data-aos="fade-up" data-aos-duration="900" className='flex flex-col gap-2 max-h-[150px] overflow-y-auto pl-[20px] mt-[10px]'>
             {myProfiledata?.reportAnalysisSet.map((node:any, index:any) => (
-            <Tooltip title="View Result" placement='right' arrow>
-              <Link to={`/report-result?id=${node._id}`} className='cursor-pointer p-1  px-2 hover:hover:bg-[#a9030628] transition-all duration-[0.1s] text-[14px] hover:border-l-[5px] hover:border-C11   hover:font-semibold hover:underline underline-offset-1' key={index} >
+            <div className='flex flex-row justify-between group cursor-pointer p-1  px-2 hover:hover:bg-[#a9030628] transition-all duration-[0.1s] text-[14px] hover:border-l-[5px] hover:border-C11   hover:font-semibold ' key={index} >
+              <Link title='View Report' to={`/report-result?id=${node._id}`}  className='hover:underline underline-offset-1'>
               {`${moment(node.date).format('llll')}`}
               </Link>
-            </Tooltip>
+              <button
+              onClick={()=>handleDeleteReport(node._id)}
+               title="Delete Report" className='hidden group-hover:block text-C11'>
+                <Delete sx={{fontSize:20}}/>
+              </button>
+            </div>
            ))}
           </div>
 
           <div data-aos="fade-up" data-aos-duration="1000" className='font-bold league-spartan text-[20px] mt-10 text-C11 flex gap-1 flex-row items-center'><ImageSearch sx={{fontSize:20}}/><div>All Image Analysis Reports</div></div>
           <div data-aos="fade-up" data-aos-duration="1200" className='flex flex-col gap-2 max-h-[150px] overflow-y-auto pl-[20px] mt-[10px]'>
-          {dummyAnalysisreports.map((node:any, index:any) => (
-            <Tooltip title="View Report" placement='right' arrow>
-              <Link to={`/mri-result?id=${node.reportName}`} className='cursor-pointer p-1  px-2 hover:hover:bg-[#a9030628] transition-all duration-[0.1s] text-[14px] hover:border-l-[5px] hover:border-C11   hover:font-semibold hover:underline underline-offset-1' key={index} >{node?.reportName}</Link>
-            </Tooltip>
+          {myProfiledata?.mriAnalysisSet.map((node:any, index:any) => (
+            <div className='flex flex-row justify-between group cursor-pointer p-1  px-2 hover:hover:bg-[#a9030628] transition-all duration-[0.1s] text-[14px] hover:border-l-[5px] hover:border-C11   hover:font-semibold ' key={index} >
+            <Link title='View Report' to={`/mri-result?id=${node._id}`}  className='hover:underline underline-offset-1'>
+            {`${moment(node.date).format('llll')}`}
+            </Link>
+            <button 
+            onClick={()=>handleDeleteMRI(node._id)}
+            title="Delete Report" className='hidden group-hover:block text-C11'>
+              <Delete sx={{fontSize:20}}/>
+            </button>
+          </div>
             ))}
           </div>
         </div>

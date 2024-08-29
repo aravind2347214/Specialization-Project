@@ -11,6 +11,7 @@ import { getUserDetailsFromToken } from "../services/authServices";
 import moment from "moment";
 import { CalendarMonth, CalendarViewMonth, Female, InfoOutlined, Male, Person, Person2, Transgender, VerifiedUser } from "@mui/icons-material";
 import { Link } from "react-router-dom";
+import { Tooltip } from "@mui/material";
 
 
 function ReportResultPage() {
@@ -58,6 +59,10 @@ function ReportResultPage() {
       }
   
     }, [rerender]);
+
+    useEffect(() => {
+      document.body.style.overflow = "scroll"
+    }, []);
   
 
     useEffect(() => {
@@ -113,11 +118,20 @@ function ReportResultPage() {
                 <Navbar activePage="mri-result" />
                 {
                   myProfiledata?._id===reportResult?.userId?
-                <div className="flex-1 pt-[120px] px-[150px] justify-center flex flex-col gap-2">
-                    <div className="league-spartan font-bold text-[50px] text-C11">
+                <div className="flex-1 pt-[120px] px-[120px] justify-center flex flex-col gap-2">
+                    <div
+                    data-aos="fade-up"
+                    data-aos-duration="600"
+                    data-aos-once
+                     className="league-spartan font-bold text-[50px] text-C11">
                         Report Result
                     </div>
-                    <div className="flex flex-row gap-[60px]">
+                    <div 
+                    data-aos="fade-up"
+                    data-aos-duration="900"
+                    data-aos-once
+
+                    className="flex flex-row gap-[60px]">
 
                     <div className="flex flex-row items-center gap-1">
                       <div className="text-C11">
@@ -156,20 +170,34 @@ function ReportResultPage() {
                       </div>
                     </div>
                     </div>
-                    <div className="mt-[40px] mb-[-20px]">
+                    <div 
+                       data-aos="fade-up"
+                    data-aos-duration="700"
+                    data-aos-once
+
+                    className="mt-[40px] mb-[-20px]">
                       <div className="font-bold league-spartan text-C11">Analysis Files</div>
                       <div className="flex flex-wrap gap-2 mt-1">
                         {
                           reportResult?.files.map((file:any,i:any)=>(
+                            <Tooltip title="View File" placement="bottom" arrow>
+
                             <a className="px-3 py-1 text-[12px] font-bold bg-gray-100 hover:bg-gray-200"
-                            href={file} download target="_blank">
+                            href={file} download target="_blank"
+                            >
                               {`File ${i+1}`}
                             </a>
+                            </Tooltip>
                           ))
                         }
                       </div>
                     </div>
-                    <div className="my-10 flex flex-row gap-[50px] ">
+                    <div 
+                       data-aos="fade-up"
+                    data-aos-duration="800"
+                    data-aos-once
+
+                    className="my-10 flex flex-row gap-[100px] ">
                         <div className="flex flex-col gap-[30px] w-1/2">
                             {/* Stage */}
                             {reportResult.stage && (
@@ -185,7 +213,12 @@ function ReportResultPage() {
 
                             {/* Analysis */}
                             {reportResult.analysis && (
-                                <div className="flex flex-col px-5 py-3 rounded-[4px]">
+                                <div 
+                                   data-aos="fade-up"
+                    data-aos-duration="900"
+                    data-aos-once
+
+                                className="flex flex-col px-5 py-3 rounded-[4px]">
                                     <div className="league-spartan font-bold text-[25px] text-gray-800">
                                         Analysis
                                     </div>
@@ -197,7 +230,12 @@ function ReportResultPage() {
 
                             {/* Lifestyle Recommendations */}
                             {reportResult.lifestyle_recommendations && (
-                                <div className="flex flex-col px-5 py-3 rounded-[4px]">
+                                <div
+                                   data-aos="fade-up"
+                    data-aos-duration="1000"
+                    data-aos-once
+
+                                className="flex flex-col px-5 py-3 rounded-[4px]">
                                     <div className="league-spartan font-bold text-[25px] text-gray-800">
                                         Lifestyle Recommendations
                                     </div>
@@ -210,10 +248,22 @@ function ReportResultPage() {
                                     </div>
                                 </div>
                             )}
+
+                            {/* Diseases */}
+                            
+
+
+
+
                         </div>
 
                         <div className="flex flex-col gap-[30px] w-1/2">
-                            <table className="w-full border border-C11 text-C11">
+                            <table 
+                    data-aos="fade-up"
+                    data-aos-duration="700"
+                    data-aos-once
+
+                            className="w-full border border-C11 text-C11">
                                 <thead>
                                     <tr className="text-[12px] text-center">
                                         <th>Albumin</th>
@@ -244,7 +294,12 @@ function ReportResultPage() {
 
                             {/* Precautions */}
                             {reportResult.precautions.length>0 && (
-                                <div className="flex flex-col py-3 rounded-[4px]">
+                                <div
+                                   data-aos="fade-up"
+                    data-aos-duration="900"
+                    data-aos-once
+
+                                className="flex flex-col py-3 rounded-[4px]">
                                     <div className="league-spartan font-bold text-[25px] text-gray-800">
                                         Precautions
                                     </div>
@@ -260,12 +315,18 @@ function ReportResultPage() {
 
                             {/* Doctors to Visit */}
                             {reportResult.doctor_type.length>0 && (
-                                <div className="flex flex-col py-3 rounded-[4px]">
+                                <div
+                                   data-aos="fade-up"
+                    data-aos-duration="1000"
+                    data-aos-once
+
+                                className="flex flex-col py-3 rounded-[4px]">
                                     <div className="league-spartan font-bold text-[25px] text-gray-800">
                                         Doctors You Might Want to Visit
                                     </div>
                                     <div className="flex flex-wrap gap-[20px]">
                                         {reportResult.doctor_type.map((node: any, index: number) => (
+                                            <Tooltip title="Find near you" placement="bottom" arrow>
                                             <a 
                                             key={index} 
                                             className="p-1 px-2 hover:bg-[#a9030628] transition-all duration-[0.1s] text-[14px] hover:font-semibold"
@@ -275,6 +336,7 @@ function ReportResultPage() {
                                              >
                                                 {node}
                                             </a>
+                                            </Tooltip>
                                         ))}
                                     </div>
                                 </div>
@@ -282,7 +344,11 @@ function ReportResultPage() {
 
                             {/* Self Treatment Plan */}
                             {reportResult.self_treatment_plan.length>0 && (
-                                <div className="flex flex-col py-3 rounded-[4px]">
+                                <div
+                                   data-aos="fade-up"
+                    data-aos-duration="1100"
+                    data-aos-once
+                                className="flex flex-col py-3 rounded-[4px]">
                                     <div className="league-spartan font-bold text-[25px] text-gray-800">
                                         Self Treatment Plan
                                     </div>

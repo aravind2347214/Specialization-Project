@@ -32,9 +32,9 @@ connectToDatabase().then(()=>{
                         app.post("/add-files-to-report/:userId",reportRouter)
                         app.post("/analyze-report", reportRouter); // This sets a base path for the router
                         app.get("/get-report-by-id/:reportId",reportRouter)
-                        app.delete("/delete-report-id/:reportId",reportRouter)
+                        app.delete("/delete-report-by-id/:reportId",reportRouter)
             
-            //Report Analysis REQUESTS
+            //MRI Analysis REQUESTS
                         app.post("/analyze-mri/:userId",mriRouter)
                         app.get("/get-mri-by-id/:mriId",mriRouter)
                         app.delete("/delete-mri-by-id/:mriId",mriRouter)

@@ -152,13 +152,13 @@ exports.report_add_files = async (req, res) => {
   exports.delete_report = async (req, res) => {
     try {
       const reportId = req.params.reportId;
-      const userId = req.params.userId;
   
       // Find and delete the report by ID
-      const deletedReport = await ReportAnalysis.findByIdAndDelete(reportId);
+      const deleteReport = await ReportAnalysis.findByIdAndDelete(reportId);
+      const userId = deleteReport.userId
   
-      if (!deletedReport) {
-        return res.status(404).json({ message: 'Report not found' });
+      if (!deleteReport) {
+        return res.status(404).json({ message: 'Report not found',deleteSuccess:false });
       }
   
       // Remove the reportId from the user's properties
@@ -168,9 +168,9 @@ exports.report_add_files = async (req, res) => {
         { new: true }
       );
   
-      res.status(200).json({ message: 'Report deleted successfully' });
+      res.status(200).json({ message: 'Report deleted successfully',deleteSuccess:true });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      res.status(500).json({ error: 'Internal Server Error',deleteSuccess:false});
     }
   };
