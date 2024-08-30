@@ -29,7 +29,7 @@ function ReportAnalysisPage() {
   const [loading, setLoading] = useState<Boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [resultStatus,setResultStatus] = useState<String>("result-loaded")
-  const [reportId,setReportId]= useState<any>("")
+  const [reportId,setReportId]= useState<any>("new-report")
 
 
 
@@ -83,8 +83,8 @@ function ReportAnalysisPage() {
     copper: "",
     alk_phos: "",
     platelets:"",
-    sex:"",
-    age:"",
+    sex:myProfiledata?.gender,
+    age:myProfiledata?.age,
     tryglycerides:"",
     sgot:"",
     cholesterol:"",
@@ -270,7 +270,7 @@ const handleAnalyzeReport = async () => {
               ...validatedData
           };
 
-          const response: any = await analyseReportById(reportId, reportData);
+          const response: any = await analyseReportById(reportId,myProfiledata?._id, reportData);
 
           if (response.analysisSuccess) {
               // Handle success
@@ -367,7 +367,7 @@ useEffect(() => {
           ) : (
             <>
             {
-              reportId===""?
+              reportId==="new-report"?
               <div className="flex flex-col items-center justify-between gap-3 px-2 py-5 ">
                 <div className="min-w-[49%] justify-center flex flex-col gap-[10px]   mx-auto">
                   <input
@@ -580,6 +580,7 @@ useEffect(() => {
                       <input
                        name="albumin"
                         type="text"
+                        onChange={handleInputChange}
                         value={validatedData?.albumin}
                         className=" border-gray-300 border py-2 px-2 bg-gray-100 outline-none focus:border-C11 rounded-[2px] text-[12px]"
                       />

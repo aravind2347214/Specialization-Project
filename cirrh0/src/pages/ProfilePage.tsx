@@ -6,7 +6,7 @@ import { getUserById } from '../services/userServices';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import * as authActions from "../redux/actions"
-import { Delete, FindInPage, ImageSearch, Title } from '@mui/icons-material';
+import { Add, AddCircle, AddRoadOutlined, Delete, FindInPage, ImageSearch, Title } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { Tooltip } from '@mui/material';
 import moment from 'moment';
@@ -94,7 +94,7 @@ function ProfilePage() {
         </div>
         <div className='lg:w-1/2 p-10 mt-10  rounded-[2px]'>
         <div>
-          <div className='font-bold league-spartan text-[20px] text-C11 flex flex-row gap-1 items-center ' data-aos="fade-up" data-aos-duration="800"><FindInPage sx={{fontSize:20}}/><div>All Test Analysis Reports</div> </div>
+          <div className='font-bold league-spartan text-[20px] text-C11 flex flex-row gap-1 items-center ' data-aos="fade-up" data-aos-duration="800"><FindInPage sx={{fontSize:20}}/><div>All Test Analysis Results</div> </div>
           <div data-aos="fade-up" data-aos-duration="900" className='flex flex-col gap-2 max-h-[150px] overflow-y-auto pl-[20px] mt-[10px]'>
             {myProfiledata?.reportAnalysisSet.map((node:any, index:any) => (
             <div className='flex flex-row justify-between group cursor-pointer p-1  px-2 hover:hover:bg-[#a9030628] transition-all duration-[0.1s] text-[14px] hover:border-l-[5px] hover:border-C11   hover:font-semibold ' key={index} >
@@ -108,9 +108,22 @@ function ProfilePage() {
               </button>
             </div>
            ))}
+           {
+            myProfiledata?.reportAnalysisSet.length === 0 && 
+            <div className='flex flex-col justify-center w-full my-10'>
+              <div className='flex justify-center'>
+              <Tooltip title="Analyze new Report" arrow placement='right'>
+                <Link to="/report-analysis" className='text-gray-200 bg- w-fit h-fit hover:text-C11'>
+                 <AddCircle sx={{fontSize:30}}/>
+                </Link>
+              </Tooltip>
+              </div>
+              <p className='text-gray-300 text-[12px] font-semibold text-center'>No Existing Reports for you</p>
+            </div>
+           }
           </div>
 
-          <div data-aos="fade-up" data-aos-duration="1000" className='font-bold league-spartan text-[20px] mt-10 text-C11 flex gap-1 flex-row items-center'><ImageSearch sx={{fontSize:20}}/><div>All Image Analysis Reports</div></div>
+          <div data-aos="fade-up" data-aos-duration="1000" className='font-bold league-spartan text-[20px] mt-10 text-C11 flex gap-1 flex-row items-center'><ImageSearch sx={{fontSize:20}}/><div>All Image Analysis Results</div></div>
           <div data-aos="fade-up" data-aos-duration="1200" className='flex flex-col gap-2 max-h-[150px] overflow-y-auto pl-[20px] mt-[10px]'>
           {myProfiledata?.mriAnalysisSet.map((node:any, index:any) => (
             <div className='flex flex-row justify-between group cursor-pointer p-1  px-2 hover:hover:bg-[#a9030628] transition-all duration-[0.1s] text-[14px] hover:border-l-[5px] hover:border-C11   hover:font-semibold ' key={index} >
@@ -124,6 +137,19 @@ function ProfilePage() {
             </button>
           </div>
             ))}
+                       {
+            myProfiledata?.mriAnalysisSet.length === 0 && 
+            <div className='flex flex-col justify-center w-full my-10'>
+              <div className='flex justify-center'>
+              <Tooltip title="Analyze new MRI" arrow placement='right'>
+                <Link to="/mri-analysis" className='text-gray-200 bg- w-fit h-fit hover:text-C11'>
+                 <AddCircle sx={{fontSize:30}}/>
+                </Link>
+              </Tooltip>
+              </div>
+              <p className='text-gray-300 text-[12px] font-semibold text-center'>No Existing Reports for you</p>
+            </div>
+           }
           </div>
         </div>
         

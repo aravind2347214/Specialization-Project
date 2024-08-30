@@ -12,9 +12,9 @@ export const getExtractedParameters = async (userId: String, fileURLSet: Array<S
     }
 };
 
-export const analyseReportById = async (reportId: string, validatedData: any) => {
+export const analyseReportById = async (reportId: string, userId:string,validatedData: any) => {
     try {
-        const response = await axios.post(`${ENV}/analyze-report`, {reportId:reportId, validatedData:validatedData });
+        const response = await axios.post(`${ENV}/analyze-report`, {reportId:reportId,userId:userId, validatedData:validatedData });
         console.log("Analyse Report (IN SERVICE):", response);
         return response.data;
     } catch (error) {
