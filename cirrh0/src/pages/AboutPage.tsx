@@ -52,8 +52,8 @@ function AboutPage() {
   return (
     <div className="flex flex-col justify-between h-screen">
       <Navbar activePage="about" />
-      <div className="flex flex-col flex-1 pt-[250px] mx-auto w-[70%] gap-[200px]">
-        <div className="flex flex-row justify-between">
+      <div className="flex flex-col flex-1 pt-[250px] pb-[100px] mx-auto w-[70%] gap-[250px]">
+        <div className="flex flex-row justify-between ">
         <div className="flex flex-col justify-left text-left mt-[50px] w-[60%] ">
           <div
             data-aos="fade-up"
@@ -88,7 +88,7 @@ function AboutPage() {
         </div>
         </div>
 
-        <div className="flex flex-row justify-between">
+        <div className="flex flex-row justify-between ">
         <div
         data-aos="fade-up"
         data-aos-duration="800"
@@ -122,7 +122,7 @@ function AboutPage() {
        
         </div>
 
-        <div className="flex flex-row justify-between">
+        <div className="flex flex-row justify-between ">
 
         <div className="flex flex-col justify-left text-left mt-[50px]  w-[60%]">
           <div

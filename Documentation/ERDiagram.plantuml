@@ -1,0 +1,63 @@
+@startuml erdiagramcirrh0
+entity User {
+    + _id: ObjectId
+    --
+    username: String <<unique>>
+    token: String
+    email: String <<unique>>
+    password: String
+    fullName: String
+    age: Number
+    gender: String <<enum(male, female, other)>>
+    lastLoginDate: Date
+    loginStatus: Boolean
+}
+
+entity MRIAnalysis {
+    + _id: ObjectId
+    --
+    userId: ObjectId <<FK>>
+    age: Number
+    sex: String
+    file: String
+    analysis: String
+    diagnosis: [String]
+    lifestyle_recommendations: [String]
+    precautions: [String]
+    date: Date
+    medical_treatments: [String]
+    doctor_type: [String]
+}
+
+entity ReportAnalysis {
+    + _id: ObjectId
+    --
+    userId: ObjectId <<FK>>
+    age: Number
+    sex: String
+    files: [String]
+    analysis: String
+    stage: Number
+    ascites: String
+    edema: String
+    tryglycerides: String
+    cholesterol: String
+    spiders: String
+    hepatomegaly: String
+    bilirubin: Number
+    albumin: Number
+    prothrombin: Number
+    platelets: Number
+    sgot: Number
+    date: Date
+    copper: Number
+    alk_phos: Number
+    lifestyle_recommendations: [String]
+    precautions: [String]
+    self_treatment_plan: [String]
+    doctor_type: [String]
+}
+
+MRIAnalysis }o--|| User : "mriAnalysisSet"
+ReportAnalysis }o--|| User : "reportAnalysisSet"
+@enduml

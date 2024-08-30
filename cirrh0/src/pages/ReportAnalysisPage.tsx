@@ -291,6 +291,19 @@ const handleAnalyzeReport = async () => {
 };
 
 
+useEffect(() => {
+  if (loading) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = 'auto';
+  }
+
+  // Cleanup function to reset overflow when component unmounts
+  return () => {
+    document.body.style.overflow = 'auto';
+  };
+}, [loading]);
+
 
   
 
@@ -300,7 +313,7 @@ const handleAnalyzeReport = async () => {
       <div className="flex flex-col justify-between h-screen">
          {
             loading?
-            <div className="absolute min-w-[100vw] top-0 left-0  z-[100] min-h-[100vh]  justify-center flex items-center">
+            <div className="fixed inset-0 min-w-[100vw] top-0 left-0 backdrop-blur-[3px] bg-[#0000006c] z-[100] min-h-[100vh]  justify-center flex items-center">
               <Loader/>
             </div>:
             null
@@ -322,13 +335,15 @@ const handleAnalyzeReport = async () => {
             data-aos-duration="700"
             className="text-[16px]"
           >
-           Elevate your diagnostic precision with our advanced report analysis platform. 
-           We meticulously evaluate MRI and other imaging reports to identify key conditions
-            such as fibrosis, cirrhosis, inflammation, steatosis, and ballooning. 
-            Our expert analysis integrates cutting-edge technology and clinical 
-            expertise to deliver clear, actionable insights, ensuring comprehensive 
-            understanding and effective management of liver health. Trust our platform for detailed, 
-            accurate interpretations that support informed medical decisions.
+         Elevate your diagnostic precision with our advanced report analysis platform. 
+         Simply upload your PDF reports, including blood tests, liver function tests, 
+         and cirrhosis-related evaluations, and let our cutting-edge technology extract
+          and analyze the data. Our platform meticulously identifies key liver conditions 
+          such as fibrosis, cirrhosis, inflammation, steatosis, and ballooning, providing
+           clear, actionable insights into the stage of liver cirrhosis and recommended 
+           management strategies. With our expert integration of technology and clinical
+            expertise, you can trust us to deliver detailed, accurate interpretations that
+             support informed medical decisions and effective liver health management.
           </div>
           <div
             data-aos="fade-up"
@@ -405,12 +420,14 @@ const handleAnalyzeReport = async () => {
                 
 
                 <div>
-                <div className="flex flex-row items-center gap-1 mt-5 text-C11">
+                <div 
+                data-aos="fade-up" 
+                data-aos-duration="800" 
+                data-aos-once 
+                className="flex flex-row items-center gap-1 mt-5 text-C11">
                   <InfoOutlined sx={{fontSize:16}}/>
                   <div
-                    data-aos="fade-up" 
-                    data-aos-duration="800" 
-                    data-aos-once 
+                    
                   className=" flex flex-col text-[12px] justify-center gap-[5px]">
                 Certain parameters within these documents are required to conduct the analysis.There could be errors on the extracted values
                 </div>

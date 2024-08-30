@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 800">
+    <!-- User Entity -->
+    <rect x="50" y="50" width="280" height="300" fill="#e6f3ff" stroke="#0066cc" stroke-width="2" />
+    <text x="190" y="80" text-anchor="middle" font-weight="bold" fill="#0066cc">User</text>
+    <line x1="50" y1="90" x2="330" y2="90" stroke="#0066cc" stroke-width="2" />
+    <text x="60" y="110" fill="#333">_id: ObjectId</text>
+    <text x="60" y="130" fill="#333">username: String</text>
+    <text x="60" y="150" fill="#333">token: String</text>
+    <text x="60" y="170" fill="#333">email: String</text>
+    <text x="60" y="190" fill="#333">password: String</text>
+    <text x="60" y="210" fill="#333">fullName: String</text>
+    <text x="60" y="230" fill="#333">age: Number</text>
+    <text x="60" y="250" fill="#333">gender: String</text>
+    <text x="60" y="270" fill="#333">lastLoginDate: Date</text>
+    <text x="60" y="290" fill="#333">loginStatus: Boolean</text>
+    <text x="60" y="310" fill="#333">reportAnalysisSet: [ObjectId]</text>
+    <text x="60" y="330" fill="#333">mriAnalysisSet: [ObjectId]</text>
+  
+    <!-- MRIAnalysis Entity -->
+    <rect x="400" y="50" width="280" height="340" fill="#fff0e6" stroke="#cc6600" stroke-width="2" />
+    <text x="540" y="80" text-anchor="middle" font-weight="bold" fill="#cc6600">MRIAnalysis</text>
+    <line x1="400" y1="90" x2="680" y2="90" stroke="#cc6600" stroke-width="2" />
+    <text x="410" y="110" fill="#333">_id: ObjectId</text>
+    <text x="410" y="130" fill="#333">userId: ObjectId</text>
+    <text x="410" y="150" fill="#333">age: Number</text>
+    <text x="410" y="170" fill="#333">sex: String</text>
+    <text x="410" y="190" fill="#333">file: String</text>
+    <text x="410" y="210" fill="#333">analysis: String</text>
+    <text x="410" y="230" fill="#333">diagnosis: [String]</text>
+    <text x="410" y="250" fill="#333">lifestyle_recommendations: [String]</text>
+    <text x="410" y="270" fill="#333">precautions: [String]</text>
+    <text x="410" y="290" fill="#333">date: Date</text>
+    <text x="410" y="310" fill="#333">medical_treatments: [String]</text>
+    <text x="410" y="330" fill="#333">doctor_type: [String]</text>
+  
+    <!-- ReportAnalysis Entity -->
+    <rect x="400" y="420" width="280" height="360" fill="#e6fff0" stroke="#009933" stroke-width="2" />
+    <text x="540" y="450" text-anchor="middle" font-weight="bold" fill="#009933">ReportAnalysis</text>
+    <line x1="400" y1="460" x2="680" y2="460" stroke="#009933" stroke-width="2" />
+    <text x="410" y="480" fill="#333">_id: ObjectId</text>
+    <text x="410" y="500" fill="#333">userId: ObjectId</text>
+    <text x="410" y="520" fill="#333">age: Number</text>
+    <text x="410" y="540" fill="#333">sex: String</text>
+    <text x="410" y="560" fill="#333">files: [String]</text>
+    <text x="410" y="580" fill="#333">analysis: String</text>
+    <text x="410" y="600" fill="#333">stage: Number</text>
+    <text x="410" y="620" fill="#333">ascites: String</text>
+    <text x="410" y="640" fill="#333">edema: String</text>
+    <text x="410" y="660" fill="#333">tryglycerides: String</text>
+    <text x="410" y="680" fill="#333">cholesterol: String</text>
+    <text x="410" y="700" fill="#333">spiders: String</text>
+    <text x="410" y="720" fill="#333">hepatomegaly: String</text>
+    <text x="410" y="740" fill="#333">bilirubin: Number</text>
+    <text x="410" y="760" fill="#333">albumin: Number</text>
+  
+    <!-- Relationships -->
+    <line x1="330" y1="200" x2="400" y2="200" stroke="#333" stroke-width="2" />
+    <polygon points="390,195 400,200 390,205" fill="#333" />
+    <text x="365" y="190" text-anchor="middle" fill="#333">1</text>
+    <text x="385" y="190" text-anchor="middle" fill="#333">n</text>
+    <text x="365" y="220" text-anchor="middle" fill="#333">has</text>
+  
+    <line x1="330" y1="250" x2="400" y2="600" stroke="#333" stroke-width="2" />
+    <polygon points="395,590 400,600 390,595" fill="#333" />
+    <text x="350" y="400" text-anchor="middle" fill="#333">1</text>
+    <text x="370" y="420" text-anchor="middle" fill="#333">n</text>
+    <text x="360" y="440" text-anchor="middle" fill="#333">has</text>
+  </svg>

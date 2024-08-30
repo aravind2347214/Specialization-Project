@@ -137,21 +137,25 @@ const handleAnalyseMRI=async()=>{
 }
 
 useEffect(() => {
-  if(loading){
-    document.body.style.overflow = "hidden";
+  if (loading) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = 'auto';
   }
-  else{
-      document.body.style.overflow = "scroll"
+
+  // Cleanup function to reset overflow when component unmounts
+  return () => {
+    document.body.style.overflow = 'auto';
   };
 }, [loading]);
 
   return (
     <>{
       pageLoading==="loaded" ?
-      <div className='flex flex-col justify-between h-screen '>
+      <div className={`flex flex-col justify-between h-screen`}>
         {
             loading?
-            <div className="absolute min-w-[100vw] top-0 left-0 bg-[#0000006c]  z-[100] min-h-full  justify-center flex items-center">
+            <div className="fixed min-w-[100vw] top-0 left-0 bg-[#0000006c] backdrop-blur-[3px]  z-[100] min-h-[100vh]  justify-center flex items-center">
               <Loader/>
             </div>:
             null
